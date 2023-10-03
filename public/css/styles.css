@@ -1,0 +1,41 @@
+/* styles.css */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #ffffff; /* White background */
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.card {
+    background-color: #3498db; /* Blue background for cards */
+    color: #ffffff; /* White text */
+    border: none;
+}
+
+.card-header {
+    background-color: #2980b9; /* Slightly darker blue for headers */
+    color: #ffffff;
+}
+
+.btn-primary {
+    background-color: #2980b9; /* Blue button color */
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #3498db; /* Slightly darker blue on hover */
+}
+
+/* Add more custom styles as needed */
+/* styles.css */
+
+@media screen and (max-width: 768px) {
+    .container {
+        padding: 10px; /* Adjust padding for smaller screens */
+    }
+}
