@@ -32,5 +32,5 @@ class OfficeController extends Controller
         return response()->json(['error' => $e->getMessage()], 400);
     }
 }
-
+    //delete office
 }

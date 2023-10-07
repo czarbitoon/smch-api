@@ -102,4 +102,10 @@ class DeviceController extends Controller
 
         return response()->json($devices);
     }
+
+    public function show($id)
+{
+    // Retrieve device information by $id and pass it to the view
+    return view('device.show', ['device' => Device::find($id)]);
+}
 }

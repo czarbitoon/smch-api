@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\OfficeController;
+use App\Http\Controllers\ReportsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -42,4 +43,14 @@ Route::middleware(['auth:sanctum', 'role:user'])->group(function () {
 
 Route::middleware(['auth:sanctum', 'role:staff'])->group(function () {
     Route::post('/staff', [AuthController::class, 'staffAccess']);
+});
+
+
+
+Route::prefix('reports')->group(function () {
+    Route::post('/', [ReportsController::class, 'store']);
+    Route::get('/', [ReportsController::class, 'index']);
+    Route::get('/{id}', [ReportsController::class, 'show']);
+    Route::put('/{id}', [ReportsController::class, 'update']);
+    Route::delete('/{id}', [ReportsController::class, 'destroy']);
 });
