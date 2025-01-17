@@ -1,48 +1,42 @@
 <?php
 
-// ReportsController.php
+// DeviceController.php
 
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Report;
+use App\Models\Device;
 
-class ReportsController extends Controller
+class DeviceController extends Controller
 {
     public function store(Request $request)
     {
-        $report = new Report();
-        $report->title = $request->input('title');
-        $report->description = $request->input('description');
-        $report->save();
-        return response()->json(['message' => 'Report added successfully']);
+        $device = new Device();
+        $device->name = $request->input('name');
+        $device->description = $request->input('description');
+        $device->save();
+        return response()->json(['message' => 'Device added successfully']);
     }
 
-    public function index()
+    public function getDevices()
     {
-        $reports = Report::all();
-        return response()->json($reports);
-    }
-
-    public function show($id)
-    {
-        $report = Report::find($id);
-        return response()->json($report);
+        $devices = Device::all();
+        return response()->json($devices);
     }
 
     public function update(Request $request, $id)
     {
-        $report = Report::find($id);
-        $report->title = $request->input('title');
-        $report->description = $request->input('description');
-        $report->save();
-        return response()->json(['message' => 'Report updated successfully']);
+        $device = Device::find($id);
+        $device->name = $request->input('name');
+        $device->description = $request->input('description');
+        $device->save();
+        return response()->json(['message' => 'Device updated successfully']);
     }
 
     public function destroy($id)
     {
-        $report = Report::find($id);
-        $report->delete();
-        return response()->json(['message' => 'Report deleted successfully']);
+        $device = Device::find($id);
+        $device->delete();
+        return response()->json(['message' => 'Device deleted successfully']);
     }
 }
