@@ -1,35 +1,27 @@
 <?php
+// 2023_02_23_143945_create_devices_table.php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreateDevicesTable extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
-        Schema::create('devices', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('type');
-            $table->unsignedBigInteger('office_id');
-            $table->timestamps();
-            $table->foreign('office_id')->references('id')->on('offices')->onDelete('cascade');
+        Schema::table('devices', function (Blueprint $table) {
+            if (!Schema::hasColumn('devices', 'office_id')) {
+                $table->foreignId('office_id')->constrained()->onDelete('cascade');
+            }
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
-        Schema::dropIfExists('devices');
+        Schema::table('devices', function (Blueprint $table) {
+            if (Schema::hasColumn('devices', 'office_id')) {
+                $table->dropForeign('devices_office_id_foreign');
+                $table->dropColumn('office_id');
+            }
+        });
     }
-};
+}
