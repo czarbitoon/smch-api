@@ -13,7 +13,6 @@ class OfficeController extends Controller
     {
         $office = new Office();
         $office->name = $request->input('name');
-        $office->address = $request->input('address');
         $office->save();
         return response()->json(['message' => 'Office added successfully']);
     }

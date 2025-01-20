@@ -21,7 +21,8 @@ return new class extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
-            $table->string('role')->default('user');
+            $table->string('role')->nullable()->default('user');
+            $table->string('api_token', 255)->nullable()->unique();
         });
     }
 
