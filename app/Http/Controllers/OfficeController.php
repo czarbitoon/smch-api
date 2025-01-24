@@ -16,4 +16,10 @@ class OfficeController extends Controller
         $office->save();
         return response()->json(['message' => 'Office added successfully']);
     }
+
+    public function getOffices()
+    {
+        $offices = Office::all();
+        return response()->json($offices);
+    }
 }

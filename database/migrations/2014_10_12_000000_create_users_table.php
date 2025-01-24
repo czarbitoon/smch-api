@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
-            $table->string('role')->nullable()->default('user');
+            $table->tinyInteger('type')->default(0); // user = 0, staff = 1, admin = 2, super admin = 3
             $table->string('api_token', 255)->nullable()->unique();
         });
     }

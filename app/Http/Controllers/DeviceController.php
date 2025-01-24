@@ -6,18 +6,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Device;
-use App\Models\Office;
 
 class DeviceController extends Controller
 {
-    public function store(Request $request)
+    public function addDevice(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string',
-            'description' => 'required|string',
-            'office_id' => 'required|exists:offices,id',
-        ]);
-
         $device = new Device();
         $device->name = $request->input('name');
         $device->description = $request->input('description');
@@ -46,10 +39,18 @@ class DeviceController extends Controller
         return response()->json(['message' => 'Device updated successfully']);
     }
 
-    public function destroy($id)
+    public function delete($id)
     {
         $device = Device::find($id);
         $device->delete();
         return response()->json(['message' => 'Device deleted successfully']);
+    }
+
+    public function resolve($id)
+    {
+        $device = Device::find($id);
+        $device->status = 'resolved';
+        $device->save();
+        return response()->json(['message' => 'Device resolved successfully']);
     }
 }
