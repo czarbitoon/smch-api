@@ -19,8 +19,13 @@ Route::post('/createDevice', [DeviceController::class, 'store']);
 Route::post('/showDevice', [DeviceController::class, 'getDevices']);
 Route::post('/updateDevice', [DeviceController::class, 'update']);
 Route::post('/deleteDevice', [DeviceController::class, 'destroy']);
+// routes/api.php
 
+Route::middleware('auth:sanctum', 'token_lifetimes:personal_access=24 hours')->get('/api/profile', [ProfileController::class, 'show']);
 Route::middleware('auth:sanctum')->group(function () {
+    
+    Route::get('/profile', [ProfileController::class, 'show']);
+    Route::post('/profile/upload-picture', [ProfileController::class, 'uploadPicture']);
     Route::post('/logout', function (Request $request) {
         $request->user()->currentAccessToken()->delete();
         return response()->noContent();
