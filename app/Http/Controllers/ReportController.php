@@ -1,6 +1,6 @@
 <?php
 
-// ReportController.php
+// ReportsController.php
 
 namespace App\Http\Controllers;
 

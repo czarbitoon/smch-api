@@ -7,11 +7,11 @@
     "require": {
         "php": "^8.0.2",
         "doctrine/dbal": "^3.6",
-        "fruitcake/laravel-cors": "^3.0",
+        "fruitcake/laravel-cors": "*",
         "guzzlehttp/guzzle": "^7.2",
         "illuminate/database": "^9.52",
         "laravel/framework": "^9.19",
-        "laravel/sanctum": "^3.2",
+        "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.7"
     },
     "require-dev": {

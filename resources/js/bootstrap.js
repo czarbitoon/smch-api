@@ -10,7 +10,19 @@ window._ = _;
 import axios from 'axios';
 window.axios = axios;
 
-window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+// Set Axios to include credentials
+axios.defaults.withCredentials = true;
+
+// Set the base URL for Axios
+axios.defaults.baseURL = 'http://127.0.0.1:8000/api'; // Ensure the base URL includes /api
+
+// Fetch CSRF cookie
+axios.get('/sanctum/csrf-cookie').then(response => {
+    // Now you can make authenticated requests
+}).catch(error => {
+    console.error('CSRF cookie fetch error:', error);
+});
+
 
 /**
  * Echo exposes an expressive API for subscribing to channels and listening
@@ -19,17 +31,6 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
  */
 
 // import Echo from 'laravel-echo';
-
 // import Pusher from 'pusher-js';
 // window.Pusher = Pusher;
-
-// window.Echo = new Echo({
-//     broadcaster: 'pusher',
-//     key: import.meta.env.VITE_PUSHER_APP_KEY,
-//     cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER ?? 'mt1',
-//     wsHost: import.meta.env.VITE_PUSHER_HOST ? import.meta.env.VITE_PUSHER_HOST : `ws-${import.meta.env.VITE_PUSHER_APP_CLUSTER}.pusher.com`,
-//     wsPort: import.meta.env.VITE_PUSHER_PORT ?? 80,
-//     wssPort: import.meta.env.VITE_PUSHER_PORT ?? 443,
-//     forceTLS: (import.meta.env.VITE_PUSHER_SCHEME ?? 'https') === 'https',
-//     enabledTransports: ['ws', 'wss'],
-// });
+// window.Echo = new Echo({...});

@@ -4,12 +4,16 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\OfficeController;
 use App\Http\Controllers\ProfileController;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Sanctum\Http\Controllers\CsrfCookieController; // Add this line
 
+Route::get('/sanctum/csrf-cookie', [CsrfCookieController::class, 'show']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -36,5 +40,4 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/staff', [AuthController::class, 'staffAccess']);
     });
 
-    // Removed reports routes as they are not needed
 });
