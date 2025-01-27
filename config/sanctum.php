@@ -46,7 +46,10 @@ return [
     |
     */
 
-    'expiration' => null,
+    'expiration' => 1440, // 24 hours
+    'token_lifetimes' => [
+    'personal_access' => now()->addHours(24), // Increase the token expiration time to 24 hours
+],
 
     /*
     |--------------------------------------------------------------------------

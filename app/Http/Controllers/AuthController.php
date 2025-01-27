@@ -13,36 +13,42 @@ use Illuminate\Support\Str;
 class AuthController extends Controller
 {
     public function login(Request $request)
-    {
-        try {
-            $this->validate($request, [
-                'email' => 'required|email',
-                'password' => 'required|string'
-            ]);
+{
+    try {
+        $credentials = $request->only(['email', 'password']);
 
-            $credentials = $request->only(['email', 'password']);
-
-            if (!Auth::attempt($credentials)) {
-                return response()->json(['error' => 'Unauthorized'], 401);
-            }
-
-            $user = Auth::user();
-            $role = $user->role; // Replace 'role' with the actual name of the role field in your User model
-
-            $token = Str::random(60);
-            $user->api_token = hash('sha256', $token);
-            $user->save();
-
-            return response()->json([
-                'access_token' => $token,
-                'token_type' => 'Bearer',
-                'expires_in' => config('jwt.ttl') * 60, // expiration time in seconds
-                'role' => $role
-            ]);
-
-        } catch (ValidationException $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
+        if (!Auth::attempt($credentials)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
+
+        $user = Auth::user();
+        $token = $user->createToken('authToken')->plainTextToken;
+        $refreshToken = $user->createToken('authToken')->refreshToken;
+        $expirationTime = $user->createToken('authToken')->expires_in;
+
+        return response()->json([
+            'access_token' => $token,
+            'refresh_token' => $refreshToken,
+            'expiration_time' => $expirationTime,
+            'token_type' => 'Bearer',
+        ]);
+    } catch (ValidationException $e) {
+        return response()->json(['error' => $e->getMessage()], 400);
+    }
+}
+    public function refreshToken(Request $request)
+    {
+        $request->validate([
+            'refresh_token' => 'required',
+        ]);
+
+        $token = $request->user()->createToken('authToken', ['*'])->plainTextToken;
+
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'expires_in' => Auth::guard('web')->factory()->getTTL() * 60,
+        ]);
     }
 
     public function logout()
