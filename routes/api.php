@@ -1,11 +1,8 @@
 <?php
 
-// api.php
-
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\OfficeController;
-use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -39,11 +36,5 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/staff', [AuthController::class, 'staffAccess']);
     });
 
-    Route::prefix('reports')->group(function () {
-        Route::post('/', [ReportsController::class, 'store']);
-        Route::get('/', [ReportsController::class, 'index']);
-        Route::get('/{id}', [ReportsController::class, 'show']);
-        Route::put('/{id}', [ReportsController::class, 'update']);
-        Route::delete('/{id}', [ReportsController::class, 'destroy']);
-    });
+    // Removed reports routes as they are not needed
 });

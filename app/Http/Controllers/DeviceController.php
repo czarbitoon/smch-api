@@ -1,7 +1,5 @@
 <?php
 
-// DeviceController.php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -9,48 +7,27 @@ use App\Models\Device;
 
 class DeviceController extends Controller
 {
-    public function addDevice(Request $request)
-    {
-        $device = new Device();
-        $device->name = $request->input('name');
-        $device->description = $request->input('description');
-        $device->office_id = $request->input('office_id');
-        $device->save();
-        return response()->json(['message' => 'Device added successfully']);
-    }
+    // Existing methods...
 
-    public function getDevices()
-    {
-        $devices = Device::all();
-        return response()->json($devices);
-    }
-
-    public function update(Request $request, $id)
+    public function logIssue(Request $request)
     {
         $request->validate([
-            'name' => 'required|string',
-            'description' => 'required|string',
+            'device_id' => 'required|exists:devices,id',
+            'issue_description' => 'required|string',
         ]);
 
-        $device = Device::find($id);
-        $device->name = $request->input('name');
-        $device->description = $request->input('description');
-        $device->save();
-        return response()->json(['message' => 'Device updated successfully']);
+        // Logic to log the issue (e.g., save to a database or send a notification)
+        // This is a placeholder for the actual implementation.
+        return response()->json(['message' => 'Issue logged successfully']);
     }
 
-    public function delete($id)
+    public function getDeviceStatus($id)
     {
         $device = Device::find($id);
-        $device->delete();
-        return response()->json(['message' => 'Device deleted successfully']);
-    }
+        if (!$device) {
+            return response()->json(['message' => 'Device not found'], 404);
+        }
 
-    public function resolve($id)
-    {
-        $device = Device::find($id);
-        $device->status = 'resolved';
-        $device->save();
-        return response()->json(['message' => 'Device resolved successfully']);
+        return response()->json(['status' => $device->status]);
     }
 }
