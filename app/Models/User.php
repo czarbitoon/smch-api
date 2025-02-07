@@ -23,6 +23,7 @@ class User extends Authenticatable
         'role',
         'api_token',
         'office_id',
+        'profile_picture', // Added profile_picture to fillable attributes
     ];
 
     /**

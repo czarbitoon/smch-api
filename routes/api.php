@@ -16,7 +16,7 @@ Route::get('/sanctum/csrf-cookie', function () {
 
 // Auth routes
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout']);
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum'); // Added middleware
 Route::get('/profile', [AuthController::class, 'profile'])->middleware('auth:sanctum');
 
 // Device routes

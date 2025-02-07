@@ -11,6 +11,12 @@ class ReportController extends Controller
 {
     public function addReport(Request $request)
     {
+        $request->validate([
+            'title' => 'required|string',
+            'description' => 'required|string',
+            'device_id' => 'required|exists:devices,id',
+        ]);
+
         $report = new Report();
         $report->title = $request->input('title');
         $report->description = $request->input('description');
@@ -33,6 +39,10 @@ class ReportController extends Controller
         ]);
 
         $report = Report::find($id);
+        if (!$report) {
+            return response()->json(['message' => 'Report not found'], 404);
+        }
+
         $report->title = $request->input('title');
         $report->description = $request->input('description');
         $report->save();
@@ -42,6 +52,10 @@ class ReportController extends Controller
     public function delete($id)
     {
         $report = Report::find($id);
+        if (!$report) {
+            return response()->json(['message' => 'Report not found'], 404);
+        }
+
         $report->delete();
         return response()->json(['message' => 'Report deleted successfully']);
     }
@@ -49,6 +63,10 @@ class ReportController extends Controller
     public function resolve($id)
     {
         $report = Report::find($id);
+        if (!$report) {
+            return response()->json(['message' => 'Report not found'], 404);
+        }
+
         $report->status = 'resolved';
         $report->save();
         return response()->json(['message' => 'Report resolved successfully']);
