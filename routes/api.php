@@ -18,12 +18,11 @@ Route::post('/offices', [OfficeController::class, 'addOffice']);
 Route::put('/offices/{id}', [OfficeController::class, 'updateOffice']);
 Route::delete('/offices/{id}', [OfficeController::class, 'deleteOffice']);
 
-
 // Auth routes
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum'); // Secured logout route
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::get('/profile', [AuthController::class, 'profile'])->middleware('auth:sanctum');
-
+Route::post('/register', [AuthController::class, 'register'])->middleware('auth:sanctum');
 
 // Device routes
 Route::get('/devices', [DeviceController::class, 'showDevices']);

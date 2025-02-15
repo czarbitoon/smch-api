@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use Illuminate\Validation\ValidationException;
 
@@ -26,6 +27,32 @@ class AuthController extends Controller
                 'token_type' => 'Bearer',
                 'expires_in' => 60 * 60, // Set expiration time (1 hour)
             ]);
+        } catch (ValidationException $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
+    }
+
+    public function register(Request $request)
+    {
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|min:8|confirmed',
+                'role' => 'required|in:admin,staff,user' // Validate role input
+            ]);
+
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role' => $request->role
+            ]);
+
+            return response()->json([
+                'message' => 'User created successfully',
+                'user' => $user
+            ], 201);
         } catch (ValidationException $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }

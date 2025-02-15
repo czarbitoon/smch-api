@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Office extends Model
 {
-    protected $fillable = ['name'];
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
+    protected $fillable = ['name'];
     protected $dates = ['deleted_at'];
 
     public function devices()
@@ -18,4 +18,3 @@ class Office extends Model
         return $this->hasMany(Device::class);
     }
 }
-
