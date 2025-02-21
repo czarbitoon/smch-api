@@ -16,8 +16,10 @@ class Report extends Model
         'user_id',  // User who made the report
         'device_id',  // Associated device
         'office_id',  // Originating office
+        'resolved_by', // User who resolved the report
         // Add other fields as needed
     ];
+
 
     public function user()
     {

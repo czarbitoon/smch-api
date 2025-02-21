@@ -21,6 +21,7 @@ class ReportController extends Controller
         $report->title = $request->input('title');
         $report->description = $request->input('description');
         $report->device_id = $request->input('device_id');
+        $report->user_id = $request->user()->id; // Set the reporter
         $report->save();
         return response()->json(['message' => 'Report added successfully']);
     }
@@ -60,7 +61,7 @@ class ReportController extends Controller
         return response()->json(['message' => 'Report deleted successfully']);
     }
 
-    public function resolve($id)
+    public function resolve(Request $request, $id)
     {
         $report = Report::find($id);
         if (!$report) {
@@ -68,6 +69,7 @@ class ReportController extends Controller
         }
 
         $report->status = 'resolved';
+        $report->resolved_by = $request->user()->id; // Set the resolver
         $report->save();
         return response()->json(['message' => 'Report resolved successfully']);
     }

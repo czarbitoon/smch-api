@@ -71,6 +71,10 @@ class AuthController extends Controller
     public function profile()
     {
         $user = Auth::user(); // Get the authenticated user
-        return response()->json(['user' => $user], 200);
+        return response()->json([
+            'user' => $user,
+            'role' => $user->role,
+            'office_id' => $user->office_id
+        ], 200);
     }
 }

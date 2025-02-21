@@ -1,41 +1,33 @@
 <?php
-// Database/Seeders/OfficeSeeder.php
 
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use App\Models\Office;
 
 class OfficeSeeder extends Seeder
 {
     public function run()
     {
-        DB::table('offices')->insert([
+        $offices = [
+            'Main Office',
+            'Computer Lab 1',
+            'Computer Lab 2',
+            'Library',
+            'Administration Office',
+            'Teachers Room',
+            'Science Lab',
+            'Art Room',
+            'Music Room',
+            'Sports Office'
+        ];
 
-            [
-                'name' => 'Administrative Office',
-            ],
-            [
-                'name' => 'Guidance Office',
-            ],
-            [
-                'name' => 'Finance Office',
-            ],
-            [
-                'name' => 'Admissions Office',
-            ],
-            [
-                'name' => 'Faculty Office',
-            ],
-            [
-                'name' => 'IT Office',
-            ],
-            [
-                'name' => 'Library',
-            ],
-            [
-                'name' => 'Nurse\'s Office',
-            ],
-        ]);
+        foreach ($offices as $office) {
+            Office::create([
+                'name' => $office,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
     }
 }

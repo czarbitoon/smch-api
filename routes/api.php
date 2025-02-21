@@ -26,6 +26,7 @@ Route::post('/register', [AuthController::class, 'register'])->middleware('auth:
 
 // Device routes
 Route::get('/devices', [DeviceController::class, 'showDevices']);
+Route::get('/office-devices', [OfficeController::class, 'getDevices'])->middleware('auth:sanctum');
 Route::post('/devices', [DeviceController::class, 'createDevice']);
 Route::put('/devices/{id}', [DeviceController::class, 'updateDevice']);
 Route::delete('/devices/{id}', [DeviceController::class, 'deleteDevice']);

@@ -11,12 +11,19 @@ class Device extends Model
 
     protected $fillable = [
         'name',
-        'type',
+        'description',
+        'device_subcategory_id',
         'office_id',
         'serial_number',
-        'status',
-        'notes'
+        'model_number',
+        'manufacturer',
+        'status'
     ];
+
+    public function subcategory()
+    {
+        return $this->belongsTo(DeviceSubcategory::class);
+    }
 
     public function office()
     {
