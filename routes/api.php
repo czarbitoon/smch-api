@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TokenController;
+use App\Http\Controllers\AdminController;
 
 // CSRF Token route
 Route::get('/sanctum/csrf-cookie', function () {
@@ -23,6 +24,12 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::get('/profile', [AuthController::class, 'profile'])->middleware('auth:sanctum');
 Route::post('/register', [AuthController::class, 'register'])->middleware('auth:sanctum');
+
+// Admin routes
+Route::get('/admin/stats', [AdminController::class, 'stats'])->middleware('auth:sanctum');
+
+// User routes
+Route::get('/user/stats', [UserController::class, 'stats'])->middleware('auth:sanctum');
 
 // Device routes
 Route::get('/devices', [DeviceController::class, 'showDevices']);

@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Models\Device;
+use App\Models\Report;
+use App\Models\Office;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -26,6 +29,8 @@ class AuthController extends Controller
                 'access_token' => $token,
                 'token_type' => 'Bearer',
                 'expires_in' => 60 * 60, // Set expiration time (1 hour)
+                'type' => $user->type, // Include user type for frontend routing
+                'office_id' => $user->office_id
             ]);
         } catch (ValidationException $e) {
             return response()->json(['error' => $e->getMessage()], 400);
@@ -39,14 +44,16 @@ class AuthController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users',
                 'password' => 'required|string|min:8|confirmed',
-                'role' => 'required|in:admin,staff,user' // Validate role input
+                'type' => 'required|integer|in:0,1,2,3', // Validate type input (0=user, 1=staff, 2=admin, 3=superadmin)
+                'office_id' => 'required|exists:offices,id' // Validate office_id
             ]);
 
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'role' => $request->role
+                'type' => $request->type,
+                'office_id' => $request->office_id
             ]);
 
             return response()->json([
@@ -73,8 +80,27 @@ class AuthController extends Controller
         $user = Auth::user(); // Get the authenticated user
         return response()->json([
             'user' => $user,
-            'role' => $user->role,
+            'type' => $user->type,
             'office_id' => $user->office_id
         ], 200);
+    }
+
+    public function getAdminStats()
+    {
+        // Check if user is admin
+        $user = Auth::user();
+        if (!$user || !in_array($user->type, [2, 3])) { // Check for admin (2) or superadmin (3)
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Get counts from each model
+        $stats = [
+            'users' => User::count(),
+            'devices' => Device::count(),
+            'reports' => Report::count(),
+            'offices' => Office::count()
+        ];
+
+        return response()->json($stats, 200);
     }
 }
