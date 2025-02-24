@@ -14,6 +14,7 @@ class CreateDevicesTable extends Migration
             $table->string('name');
             $table->string('description');
             $table->foreignId('device_subcategory_id')->constrained()->onDelete('cascade');
+            $table->foreignId('office_id')->constrained()->onDelete('cascade');
             $table->string('serial_number');
             $table->string('model_number');
             $table->string('manufacturer');

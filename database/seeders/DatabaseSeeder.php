@@ -11,6 +11,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UsersTableSeeder::class,
             OfficeSeeder::class,
+            DeviceCategorySeeder::class,
+            DeviceTypeSeeder::class,
             DeviceSubcategorySeeder::class,
             DeviceSeeder::class,
         ]);

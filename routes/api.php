@@ -6,6 +6,8 @@ use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TokenController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\DeviceCategoryController;
+use App\Http\Controllers\UserController;
 
 // CSRF Token route
 Route::get('/sanctum/csrf-cookie', function () {
@@ -37,9 +39,18 @@ Route::get('/office-devices', [OfficeController::class, 'getDevices'])->middlewa
 Route::post('/devices', [DeviceController::class, 'createDevice']);
 Route::put('/devices/{id}', [DeviceController::class, 'updateDevice']);
 Route::delete('/devices/{id}', [DeviceController::class, 'deleteDevice']);
+Route::get('/devices/{id}/status', [DeviceController::class, 'getDeviceStatus']);
 
 // Report routes
 Route::get('/reports', [ReportController::class, 'getReports']);
 Route::post('/reports', [ReportController::class, 'addReport']);
 Route::put('/reports/{id}', [ReportController::class, 'update']);
 Route::delete('/reports/{id}', [ReportController::class, 'delete']);
+
+// Device Category routes
+Route::get('/device-categories', [DeviceCategoryController::class, 'getCategories']);
+Route::get('/device-categories/{categoryId}/types', [DeviceCategoryController::class, 'getTypes']);
+Route::get('/device-types/{typeId}/subcategories', [DeviceCategoryController::class, 'getSubcategories']);
+Route::post('/device-categories', [DeviceCategoryController::class, 'createCategory']);
+Route::post('/device-categories/{categoryId}/types', [DeviceCategoryController::class, 'createType']);
+Route::post('/device-types/{typeId}/subcategories', [DeviceCategoryController::class, 'createSubcategory']);
