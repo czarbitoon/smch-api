@@ -1,11 +1,10 @@
 <?php
 
-// create_offices_table.php
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class CreateOfficesTable extends Migration
+return new class extends Migration
 {
     public function up()
     {
@@ -20,4 +19,4 @@ class CreateOfficesTable extends Migration
     {
         Schema::dropIfExists('offices');
     }
-}
+};

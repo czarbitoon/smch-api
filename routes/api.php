@@ -34,18 +34,23 @@ Route::get('/admin/stats', [AdminController::class, 'stats'])->middleware('auth:
 Route::get('/user/stats', [UserController::class, 'stats'])->middleware('auth:sanctum');
 
 // Device routes
-Route::get('/devices', [DeviceController::class, 'showDevices']);
-Route::get('/office-devices', [OfficeController::class, 'getDevices'])->middleware('auth:sanctum');
-Route::post('/devices', [DeviceController::class, 'createDevice']);
-Route::put('/devices/{id}', [DeviceController::class, 'updateDevice']);
-Route::delete('/devices/{id}', [DeviceController::class, 'deleteDevice']);
-Route::get('/devices/{id}/status', [DeviceController::class, 'getDeviceStatus']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/devices', [DeviceController::class, 'showDevices']);
+    Route::get('/office-devices', [OfficeController::class, 'getDevices']);
+    Route::post('/devices', [DeviceController::class, 'createDevice']);
+    Route::put('/devices/{id}', [DeviceController::class, 'updateDevice']);
+    Route::delete('/devices/{id}', [DeviceController::class, 'deleteDevice']);
+    Route::get('/devices/{id}/status', [DeviceController::class, 'getDeviceStatus']);
+});
 
 // Report routes
-Route::get('/reports', [ReportController::class, 'getReports']);
-Route::post('/reports', [ReportController::class, 'addReport']);
-Route::put('/reports/{id}', [ReportController::class, 'update']);
-Route::delete('/reports/{id}', [ReportController::class, 'delete']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/reports', [ReportController::class, 'getReports']);
+    Route::post('/reports', [ReportController::class, 'addReport']);
+    Route::put('/reports/{id}', [ReportController::class, 'update']);
+    Route::delete('/reports/{id}', [ReportController::class, 'delete']);
+    Route::post('/reports/{id}/resolve', [ReportController::class, 'resolveReport']);
+});
 
 // Device Category routes
 Route::get('/device-categories', [DeviceCategoryController::class, 'getCategories']);
@@ -54,3 +59,10 @@ Route::get('/device-types/{typeId}/subcategories', [DeviceCategoryController::cl
 Route::post('/device-categories', [DeviceCategoryController::class, 'createCategory']);
 Route::post('/device-categories/{categoryId}/types', [DeviceCategoryController::class, 'createType']);
 Route::post('/device-types/{typeId}/subcategories', [DeviceCategoryController::class, 'createSubcategory']);
+
+// Notification routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/notifications', [NotificationsController::class, 'index']);
+    Route::post('/notifications/{id}/read', [NotificationsController::class, 'markAsRead']);
+    Route::post('/notifications', [NotificationsController::class, 'store']);
+});

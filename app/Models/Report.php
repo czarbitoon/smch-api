@@ -35,4 +35,9 @@ class Report extends Model
     {
         return $this->belongsTo(Office::class, 'office_id');
     }
+
+    public function resolvedByUser()
+    {
+        return $this->belongsTo(User::class, 'resolved_by');
+    }
 }
