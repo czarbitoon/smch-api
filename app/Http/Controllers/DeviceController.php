@@ -31,14 +31,13 @@ class DeviceController extends Controller
                 $query->where('office_id', $request->office_id);
             }
 
-            $devices = $query->get();
-
-            Log::info('Devices fetched successfully', ['count' => $devices->count()]);
-
+            $perPage = $request->input('per_page', 10); // Default to 10 items per page
+            $devices = $query->paginate($perPage);
+            
+            Log::info('Devices fetched successfully', ['count' => $devices->total()]);
+            
             return response()->json($devices)
-                ->header('Access-Control-Allow-Origin', 'http://localhost:5173')
                 ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-                ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
                 ->header('Access-Control-Allow-Credentials', 'true');
 
         } catch (\PDOException $e) {
