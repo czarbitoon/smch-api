@@ -16,7 +16,7 @@ Route::get('/sanctum/csrf-cookie', function () {
 
 Route::post('/token', [TokenController::class, 'createToken']); // Route for creating a token
 
-Route::get('/offices', [OfficeController::class, 'getOffices']);
+Route::get('/offices', [OfficeController::class, 'index']);
 Route::post('/offices', [OfficeController::class, 'addOffice']);
 Route::put('/offices/{id}', [OfficeController::class, 'updateOffice']);
 Route::delete('/offices/{id}', [OfficeController::class, 'deleteOffice']);
