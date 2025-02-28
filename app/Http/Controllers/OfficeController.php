@@ -20,18 +20,37 @@ class OfficeController extends Controller
             // Check database connection
             if (!DB::connection()->getPdo()) {
                 Log::error('Database connection failed');
-                return response()->json(['message' => 'Database connection error'], 500);
+                return response()->json(['success' => false, 'message' => 'Database connection error'], 500);
             }
 
             $query = Office::query();
-            $offices = $query->get();
+            $offices = $query->get()->map(function ($office) {
+                return [
+                    'id' => (int)$office->id,
+                    'name' => $office->name,
+                    'description' => $office->description ?? '',
+                    'devices_count' => (int)($office->devices_count ?? 0),
+                    'created_at' => $office->created_at,
+                    'updated_at' => $office->updated_at
+                ];
+            });
 
             Log::info('Offices fetched successfully', [
                 'count' => $offices->count(),
                 'connection' => DB::connection()->getName()
             ]);
 
-            return response()->json($offices);
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'offices' => $offices,
+                    'pagination' => [
+                        'total' => (int)Office::count(),
+                        'current_page' => 1,
+                        'last_page' => 1
+                    ]
+                ]
+            ]);
         } catch (\PDOException $e) {
             Log::error('Database error in index: ' . $e->getMessage(), [
                 'error_code' => $e->getCode(),
