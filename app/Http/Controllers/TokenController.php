@@ -24,6 +24,10 @@ class TokenController extends Controller
             ]);
         }
 
-        return $user->createToken('default')->plainTextToken; // No device name required
+        return response()->json([
+        'token' => $user->createToken('default')->plainTextToken,
+        'type' => $user->type,
+        'office_id' => $user->office_id
+      ]);
     }
 }

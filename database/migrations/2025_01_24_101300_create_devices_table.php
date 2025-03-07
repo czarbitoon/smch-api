@@ -13,6 +13,8 @@ class CreateDevicesTable extends Migration
             $table->id();
             $table->string('name');
             $table->string('description');
+            $table->foreignId('device_category_id')->constrained()->onDelete('cascade');
+            $table->foreignId('device_type_id')->constrained()->onDelete('cascade');
             $table->foreignId('device_subcategory_id')->constrained()->onDelete('cascade');
             $table->foreignId('office_id')->constrained()->onDelete('cascade');
             $table->string('serial_number');

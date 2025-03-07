@@ -13,14 +13,14 @@ class DeviceCategoryController extends Controller
     {
         try {
             $query = DeviceCategory::query();
-            
+
             if ($request->has('office_id')) {
                 $officeId = $request->input('office_id');
                 $query->whereHas('deviceTypes.subcategories.devices', function($q) use ($officeId) {
                     $q->where('office_id', $officeId);
                 });
             }
-            
+
             $categories = $query->get();
             return response()->json($categories);
         } catch (\Exception $e) {
@@ -32,15 +32,15 @@ class DeviceCategoryController extends Controller
     public function getTypes($categoryId, Request $request)
     {
         try {
-            $query = DeviceType::where('category_id', $categoryId);
-            
+            $query = DeviceType::where('device_category_id', $categoryId);
+
             if ($request->has('office_id')) {
                 $officeId = $request->input('office_id');
                 $query->whereHas('subcategories.devices', function($q) use ($officeId) {
                     $q->where('office_id', $officeId);
                 });
             }
-            
+
             $types = $query->get();
             return response()->json($types);
         } catch (\Exception $e) {
@@ -51,15 +51,15 @@ class DeviceCategoryController extends Controller
     public function getSubcategories($typeId, Request $request)
     {
         try {
-            $query = DeviceSubcategory::where('type_id', $typeId);
-            
+            $query = DeviceSubcategory::where('device_type_id', $typeId);
+
             if ($request->has('office_id')) {
                 $officeId = $request->input('office_id');
                 $query->whereHas('devices', function($q) use ($officeId) {
                     $q->where('office_id', $officeId);
                 });
             }
-            
+
             $subcategories = $query->get();
             return response()->json($subcategories);
         } catch (\Exception $e) {
@@ -89,7 +89,7 @@ class DeviceCategoryController extends Controller
             ]);
 
             $type = new DeviceType($request->all());
-            $type->category_id = $categoryId;
+            $type->device_category_id = $categoryId;
             $type->save();
 
             return response()->json($type, 201);
@@ -106,7 +106,7 @@ class DeviceCategoryController extends Controller
             ]);
 
             $subcategory = new DeviceSubcategory($request->all());
-            $subcategory->type_id = $typeId;
+            $subcategory->device_type_id = $typeId;
             $subcategory->save();
 
             return response()->json($subcategory, 201);
