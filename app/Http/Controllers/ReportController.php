@@ -8,6 +8,8 @@ use App\Models\Device;
 use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Log;
 use App\Events\ReportSubmitted;
 
 class ReportController extends Controller
@@ -20,7 +22,27 @@ class ReportController extends Controller
                 'title' => 'required|string|max:255',
                 'description' => 'required|string',
                 'device_id' => 'required|exists:devices,id',
-                'status' => 'sometimes|string|in:pending,in_progress,resolved,closed'
+                'status' => ['sometimes', 'string', function($attribute, $value, $fail) {
+                    $allowedStatuses = ['pending', 'in_progress', 'completed', 'cancelled'];
+                    if (!in_array(strtolower($value), $allowedStatuses)) {
+                        $fail('The status must be one of: ' . implode(', ', $allowedStatuses));
+                    }
+                }],
+                'priority' => ['required', 'string', function($attribute, $value, $fail) {
+                    $allowedPriorities = ['Low', 'Medium', 'High', 'Critical'];
+                    if (!in_array(ucfirst(strtolower($value)), $allowedPriorities)) {
+                        $fail('The priority must be one of: ' . implode(', ', $allowedPriorities));
+                    }
+                }]
+            ], [
+                'title.required' => 'The report title is required',
+                'title.max' => 'The report title must not exceed 255 characters',
+                'description.required' => 'The report description is required',
+                'device_id.required' => 'A device must be selected for the report',
+                'device_id.exists' => 'The selected device does not exist',
+                'status.in' => 'Invalid status. Must be one of: pending, in_progress, completed, cancelled',
+                'priority.required' => 'Priority level is required',
+                'priority.in' => 'Priority must be one of: Low, Medium, High, Critical'
             ]);
 
             // Find the device and verify it exists
@@ -31,6 +53,15 @@ class ReportController extends Controller
                 return response()->json(['error' => 'User not authenticated'], 401);
             }
 
+            // Check if priority is valid
+            if (isset($validatedData['priority']) && !in_array($validatedData['priority'], ['Low', 'Medium', 'High', 'Critical'])) {
+                return response()->json(['error' => 'Invalid priority level'], 422);
+            }
+
+            // Normalize status and priority case
+            $status = $validatedData['status'] ?? 'pending';
+            $priority = ucfirst(strtolower($validatedData['priority']));
+
             // Create and save the report using mass assignment
             $report = Report::create([
                 'title' => $validatedData['title'],
@@ -38,7 +69,8 @@ class ReportController extends Controller
                 'device_id' => $device->id,
                 'user_id' => $user->id,
                 'office_id' => $device->office_id,
-                'status' => $validatedData['status'] ?? 'pending'
+                'status' => strtolower($status),
+                'priority' => $priority
             ]);
 
             // Dispatch the ReportSubmitted event
@@ -55,6 +87,10 @@ class ReportController extends Controller
             ], 201);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::info('Report validation failed: ' . json_encode([
+                'input' => $request->all(),
+                'errors' => $e->errors()
+            ]));
             return response()->json([
                 'error' => 'Validation error',
                 'details' => $e->errors()
@@ -97,41 +133,98 @@ class ReportController extends Controller
 
     public function update(Request $request, $id)
     {
-        $user = Auth::user();
-        $report = Report::findOrFail($id);
+        try {
+            $user = Auth::user();
+            if (!$user) {
+                return response()->json(['error' => 'User not authenticated'], 401);
+            }
 
-        // Only staff and admin can update reports
-        if ($user->type < 1) { // Check if user is at least staff level (1)
-            return response()->json(['message' => 'Unauthorized'], 403);
+            $report = Report::findOrFail($id);
+
+            // Only staff and admin can update reports
+            if ($user->type < 1) {
+                return response()->json(['error' => 'Unauthorized. Only staff and admin can update reports'], 403);
+            }
+
+            $validatedData = $request->validate([
+                'status' => 'required|in:pending,in_progress,completed,cancelled',
+                'resolution_notes' => 'required_if:status,completed|string|nullable',
+                'priority' => 'sometimes|string|in:Low,Medium,High,Critical'
+            ], [
+                'status.required' => 'The status field is required',
+                'status.in' => 'Invalid status. Must be one of: pending, in_progress, completed, cancelled',
+                'resolution_notes.required_if' => 'Resolution notes are required when status is completed',
+                'priority.in' => 'Priority must be one of: Low, Medium, High, Critical'
+            ]);
+
+            $report->status = $validatedData['status'];
+            if ($validatedData['status'] === 'completed') {
+                $report->resolution_notes = $validatedData['resolution_notes'];
+                $report->resolved_by = $user->id;
+                $report->resolved_at = now();
+            }
+
+            if (isset($validatedData['priority'])) {
+                $report->priority = $validatedData['priority'];
+            }
+
+            $report->save();
+
+            return response()->json([
+                'message' => 'Report updated successfully',
+                'report' => $report->load(['device', 'user', 'office'])
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::info('Report validation failed: ' . json_encode([
+                'input' => $request->all(),
+                'errors' => $e->errors()
+            ]));
+            return response()->json([
+                'error' => 'Validation error',
+                'details' => $e->errors()
+            ], 422);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Report not found'
+            ], 404);
+        } catch (\Exception $e) {
+            \Log::error('Error in update: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'An unexpected error occurred while updating the report'
+            ], 500);
         }
-
-        $request->validate([
-            'status' => 'required|in:pending,in_progress,resolved,closed',
-            'resolution_notes' => 'required_if:status,resolved|string|nullable'
-        ]);
-
-        $report->status = $request->status;
-        if ($request->status === 'resolved') {
-            $report->resolution_notes = $request->resolution_notes;
-            $report->resolved_by = $user->id;
-            $report->resolved_at = now();
-        }
-        $report->save();
-
-        return response()->json([
-            'message' => 'Report updated successfully',
-            'report' => $report->load(['device', 'user', 'office'])
-        ]);
     }
     public function delete($id)
     {
-        $report = Report::find($id);
-        if (!$report) {
-            return response()->json(['message' => 'Report not found'], 404);
-        }
+        try {
+            $user = Auth::user();
+            if (!$user) {
+                return response()->json(['error' => 'User not authenticated'], 401);
+            }
 
-        $report->delete();
-        return response()->json(['message' => 'Report deleted successfully']);
+            $report = Report::findOrFail($id);
+
+            // Only staff, admin, and the report creator can delete reports
+            if ($user->type < 1 && $report->user_id !== $user->id) {
+                return response()->json([
+                    'error' => 'Unauthorized. Only staff, admin, or the report creator can delete reports'
+                ], 403);
+            }
+
+            $report->delete();
+            return response()->json(['message' => 'Report deleted successfully']);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Report not found'
+            ], 404);
+        } catch (\Exception $e) {
+            \Log::error('Error in delete: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'An unexpected error occurred while deleting the report'
+            ], 500);
+        }
     }
 
 
@@ -206,4 +299,3 @@ class ReportController extends Controller
         }
     }
 }
-

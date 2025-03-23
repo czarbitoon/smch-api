@@ -9,8 +9,9 @@ return new class extends Migration
     public function up()
     {
         Schema::table('reports', function (Blueprint $table) {
-            // First, modify the status column to be a proper ENUM type
-            DB::statement("ALTER TABLE reports MODIFY status ENUM('pending', 'in_progress', 'resolved', 'closed') NOT NULL DEFAULT 'pending'");
+            // Drop the existing status column and create a new one with check constraint
+            $table->dropColumn('status');
+            $table->string('status')->default('pending')->checkIn(['pending', 'in_progress', 'resolved', 'closed']);
         });
     }
 
@@ -18,7 +19,8 @@ return new class extends Migration
     {
         Schema::table('reports', function (Blueprint $table) {
             // Convert back to a regular string column
-            DB::statement("ALTER TABLE reports MODIFY status VARCHAR(255) NOT NULL DEFAULT 'pending'");
+            $table->dropColumn('status');
+            $table->string('status')->default('pending');
         });
     }
 };

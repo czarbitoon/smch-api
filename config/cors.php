@@ -29,9 +29,12 @@ return [
 
     // Allowed Origins
     'allowed_origins' => [
-        'http://localhost:3000',    // Frontend
-        'http://localhost:52625',   // Mobile
-        'http://localhost:8000',    // Development
+        'http://localhost:3000',    // Frontend development
+        'http://localhost:5173',    // Vite development server
+        'http://localhost:55345',   // Mobile development
+        'http://localhost:8000',    // API development
+        env('FRONTEND_URL', '*'),   // Production frontend URL
+        env('MOBILE_URL', '*'),     // Production mobile URL
     ],
 
     // Allowed Headers
