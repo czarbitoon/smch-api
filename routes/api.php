@@ -16,10 +16,12 @@ Route::get('/sanctum/csrf-cookie', function () {
 
 Route::post('/token', [TokenController::class, 'createToken']); // Route for creating a token
 
+// Unprotected routes for offices
 Route::get('/offices', [OfficeController::class, 'index']);
-Route::post('/offices', [OfficeController::class, 'addOffice']);
-Route::put('/offices/{id}', [OfficeController::class, 'updateOffice']);
-Route::delete('/offices/{id}', [OfficeController::class, 'deleteOffice']);
+Route::get('/offices/{id}', [OfficeController::class, 'show']);
+Route::post('/offices', [OfficeController::class, 'store']);
+Route::put('/offices/{id}', [OfficeController::class, 'update']);
+Route::delete('/offices/{id}', [OfficeController::class, 'destroy']);
 
 // Auth routes
 Route::post('/login', [AuthController::class, 'login']);
