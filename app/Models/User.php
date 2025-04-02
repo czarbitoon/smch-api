@@ -22,7 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
+        'type',
         'api_token',
         'office_id',
         'profile_picture',

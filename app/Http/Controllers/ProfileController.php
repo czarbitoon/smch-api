@@ -7,6 +7,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Office;
+use Illuminate\Support\Facades\Log;
 
 class ProfileController extends Controller
 {
@@ -20,6 +22,8 @@ class ProfileController extends Controller
             'name' => $user->name,
             'email' => $user->email,
             'profile_picture' => $user->profile_picture,
+            'office_id' => $user->office_id,
+            'office_name' => $user->office ? $user->office->name : null,
         ]);
     }
 
@@ -50,5 +54,48 @@ class ProfileController extends Controller
             'message' => 'Profile picture uploaded successfully',
             'profile_picture' => $path,
         ]);
+    }
+
+    public function update(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['message' => 'User not authenticated'], 401);
+        }
+
+        $validatedData = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
+            'office_id' => 'sometimes|nullable|exists:offices,id',
+        ]);
+
+        try {
+            // Update user data
+            $user->fill($validatedData);
+            $user->save();
+
+            // Get office name if office_id is set
+            $officeName = null;
+            if ($user->office_id) {
+                $office = Office::find($user->office_id);
+                $officeName = $office ? $office->name : null;
+            }
+
+            Log::info('User profile updated', ['user_id' => $user->id, 'updates' => $validatedData]);
+
+            return response()->json([
+                'message' => 'Profile updated successfully',
+                'user' => [
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'profile_picture' => $user->profile_picture,
+                    'office_id' => $user->office_id,
+                    'office_name' => $officeName,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to update user profile', ['user_id' => $user->id, 'error' => $e->getMessage()]);
+            return response()->json(['message' => 'Failed to update profile: ' . $e->getMessage()], 500);
+        }
     }
 }

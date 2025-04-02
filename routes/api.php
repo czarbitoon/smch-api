@@ -8,6 +8,7 @@ use App\Http\Controllers\TokenController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DeviceCategoryController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProfileController;
 
 // CSRF Token route
 Route::get('/sanctum/csrf-cookie', function () {
@@ -28,6 +29,10 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::get('/profile', [AuthController::class, 'profile'])->middleware('auth:sanctum');
+
+// Profile routes
+Route::post('/profile/update', [ProfileController::class, 'update'])->middleware('auth:sanctum');
+Route::post('/profile/upload-picture', [ProfileController::class, 'uploadPicture'])->middleware('auth:sanctum');
 
 
 // Admin routes
