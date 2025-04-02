@@ -60,6 +60,26 @@ class DeviceController extends Controller
             $query = Device::with(['category', 'type', 'subcategory', 'office']);
             Log::debug('Initial query built with relationships');
 
+            // Get authenticated user
+            $user = auth()->user();
+
+            // Apply office filtering based on user type
+            // Regular users and staff can only see devices in their office
+            // Admins and super admins can see all devices
+            if ($user && in_array($user->type, [0, 1])) { // Regular user or staff
+                Log::info('Restricting devices to user office', [
+                    'user_id' => $user->id,
+                    'user_type' => $user->type,
+                    'office_id' => $user->office_id
+                ]);
+                $query->where('office_id', $user->office_id);
+            } else {
+                Log::info('User is admin, showing all devices', [
+                    'user_id' => $user ? $user->id : null,
+                    'user_type' => $user ? $user->type : null
+                ]);
+            }
+
             // Filter by status if provided
             if ($request->has('status')) {
                 Log::info('Applying status filter', ['status' => $request->status]);

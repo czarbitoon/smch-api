@@ -25,9 +25,10 @@ Route::delete('/offices/{id}', [OfficeController::class, 'destroy']);
 
 // Auth routes
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::get('/profile', [AuthController::class, 'profile'])->middleware('auth:sanctum');
-Route::post('/register', [AuthController::class, 'register'])->middleware('auth:sanctum');
+
 
 // Admin routes
 Route::get('/admin/stats', [AdminController::class, 'stats'])->middleware('auth:sanctum');

@@ -15,7 +15,9 @@ return [
     // API Routes that should handle CORS
     'paths' => [
         'api/*',
+        '*',
         'sanctum/csrf-cookie',
+        'login',
     ],
 
     // Allowed HTTP Methods

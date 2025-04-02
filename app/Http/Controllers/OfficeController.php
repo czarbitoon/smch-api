@@ -24,8 +24,11 @@ class OfficeController extends Controller
             }
 
             $query = Office::query();
-            $offices = $query->get()->map(function ($office) {
-                return [
+            $offices = $query->get();
+            $formattedOffices = [];
+
+            foreach ($offices as $office) {
+                $formattedOffices[] = [
                     'id' => (int)$office->id,
                     'name' => $office->name,
                     'description' => $office->description ?? '',
@@ -33,7 +36,7 @@ class OfficeController extends Controller
                     'created_at' => $office->created_at,
                     'updated_at' => $office->updated_at
                 ];
-            });
+            }
 
             Log::info('Offices fetched successfully', [
                 'count' => $offices->count(),
@@ -43,7 +46,7 @@ class OfficeController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'offices' => $offices,
+                    'offices' => $formattedOffices,
                     'pagination' => [
                         'total' => (int)Office::count(),
                         'current_page' => 1,
@@ -72,7 +75,7 @@ class OfficeController extends Controller
     {
         try {
             Log::info('Creating new office with data:', $request->all());
-            
+
             $validatedData = $request->validate([
                 'name' => 'required|string|max:255',
                 'location' => 'required|string|max:255'
@@ -80,7 +83,7 @@ class OfficeController extends Controller
 
             $office = Office::create($validatedData);
             Log::info('Office created successfully', ['office_id' => $office->id]);
-            
+
             return response()->json([
                 'message' => 'Office created successfully',
                 'office' => $office
@@ -127,7 +130,7 @@ class OfficeController extends Controller
     {
         try {
             Log::info('Updating office', ['office_id' => $id, 'data' => $request->all()]);
-            
+
             $office = Office::findOrFail($id);
             $validatedData = $request->validate([
                 'name' => 'sometimes|required|string|max:255',
@@ -136,7 +139,7 @@ class OfficeController extends Controller
 
             $office->update($validatedData);
             Log::info('Office updated successfully', ['office_id' => $id, 'changes' => $validatedData]);
-            
+
             return response()->json([
                 'message' => 'Office updated successfully',
                 'office' => $office
@@ -164,11 +167,11 @@ class OfficeController extends Controller
     {
         try {
             Log::info('Attempting to delete office', ['office_id' => $id]);
-            
+
             $office = Office::findOrFail($id);
             // Check if office has any devices
             $deviceCount = Device::where('office_id', $id)->count();
-            
+
             if ($deviceCount > 0) {
                 Log::warning('Cannot delete office with associated devices', [
                     'office_id' => $id,
@@ -181,7 +184,7 @@ class OfficeController extends Controller
 
             $office->delete();
             Log::info('Office deleted successfully', ['office_id' => $id]);
-            
+
             return response()->json(['message' => 'Office deleted successfully']);
         } catch (\Exception $e) {
             Log::error('Error deleting office: ' . $e->getMessage(), [

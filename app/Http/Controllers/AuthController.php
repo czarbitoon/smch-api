@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Models\Device;
 use App\Models\Report;
@@ -19,10 +20,12 @@ class AuthController extends Controller
             $credentials = $request->only(['email', 'password']);
 
             if (!Auth::attempt($credentials)) {
+                Log::warning('Failed login attempt for email: ' . $credentials['email']);
                 return response()->json(['error' => 'Unauthorized'], 401);
             }
 
             $user = Auth::user();
+            Log::info('User logged in successfully', ['user_id' => $user->id, 'email' => $user->email]);
             $token = $user->createToken('authToken')->plainTextToken;
 
             return response()->json([
@@ -44,7 +47,7 @@ class AuthController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users',
                 'password' => 'required|string|min:8|confirmed',
-                'type' => 'required|integer|in:0,1,2,3', // Validate type input (0=user, 1=staff, 2=admin, 3=superadmin)
+                'type' => 'required|integer|in:0,1', // Validate type input (0=user, 1=staff)
                 'office_id' => 'required|exists:offices,id' // Validate office_id
             ]);
 
@@ -68,7 +71,9 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         try {
+            $user = $request->user();
             $request->user()->currentAccessToken()->delete();
+            Log::info('User logged out', ['user_id' => $user->id]);
             return response()->json(['message' => 'Successfully logged out']);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Logout failed: ' . $e->getMessage()], 500);
