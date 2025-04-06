@@ -33,7 +33,8 @@ class ReportController extends Controller
                     if (!in_array(ucfirst(strtolower($value)), $allowedPriorities)) {
                         $fail('The priority must be one of: ' . implode(', ', $allowedPriorities));
                     }
-                }]
+                }],
+                'report_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ], [
                 'title.required' => 'The report title is required',
                 'title.max' => 'The report title must not exceed 255 characters',
@@ -42,7 +43,10 @@ class ReportController extends Controller
                 'device_id.exists' => 'The selected device does not exist',
                 'status.in' => 'Invalid status. Must be one of: pending, in_progress, completed, cancelled',
                 'priority.required' => 'Priority level is required',
-                'priority.in' => 'Priority must be one of: Low, Medium, High, Critical'
+                'priority.in' => 'Priority must be one of: Low, Medium, High, Critical',
+                'report_image.image' => 'The file must be an image',
+                'report_image.mimes' => 'The image must be a file of type: jpeg, png, jpg, gif',
+                'report_image.max' => 'The image must not be larger than 2MB',
             ]);
 
             // Find the device and verify it exists
@@ -62,11 +66,25 @@ class ReportController extends Controller
             $status = $validatedData['status'] ?? 'pending';
             $priority = ucfirst(strtolower($validatedData['priority']));
 
+            // Handle report image upload if provided
+            $reportImagePath = null;
+            if ($request->hasFile('report_image')) {
+                $reportImagePath = $request->file('report_image')->store('report_images', 'public');
+            }
+
+            // Get device image URL if available
+            $deviceImageUrl = null;
+            if ($device->image_url) {
+                $deviceImageUrl = $device->image_url;
+            }
+
             // Create and save the report using mass assignment
             $report = Report::create([
                 'title' => $validatedData['title'],
                 'description' => $validatedData['description'],
                 'device_id' => $device->id,
+                'device_image_url' => $deviceImageUrl,
+                'report_image' => $reportImagePath,
                 'user_id' => $user->id,
                 'office_id' => $device->office_id,
                 'status' => strtolower($status),
