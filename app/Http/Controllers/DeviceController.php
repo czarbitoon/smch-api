@@ -54,7 +54,7 @@ class DeviceController extends Controller
                 Log::info('Database connection successful');
             } catch (\Exception $e) {
                 Log::error('Database connection failed', ['error' => $e->getMessage()]);
-                return response()->json(['success' => false, 'message' => 'Database connection error'], 500);
+                return response()->json(['success' => false, 'message' => 'Database connection error', 'error' => $e->getMessage()], 500);
             }
 
             $query = Device::with(['category', 'type', 'subcategory', 'office']);

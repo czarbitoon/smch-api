@@ -15,9 +15,10 @@ return [
     // API Routes that should handle CORS
     'paths' => [
         'api/*',
-        '*',
         'sanctum/csrf-cookie',
         'login',
+        'logout',
+        'register',
     ],
 
     // Allowed HTTP Methods
@@ -25,18 +26,23 @@ return [
         'GET',
         'POST',
         'PUT',
+        'PATCH',
         'DELETE',
         'OPTIONS',
     ],
 
-    // Allowed Origins
+    // Allowed Origins - Be more specific for production
     'allowed_origins' => [
-        'http://localhost:3000',    // Frontend development
-        'http://localhost:5173',    // Vite development server
-        'http://localhost:55345',   // Mobile development
-        'http://localhost:8000',    // API development
-        env('FRONTEND_URL', '*'),   // Production frontend URL
-        env('MOBILE_URL', '*'),     // Production mobile URL
+        'http://localhost:3000',     // React dev server
+        'http://localhost:5173',     // Vite dev server
+        'http://localhost:8000',     // Laravel dev server
+        'http://localhost',          // General localhost
+        'http://127.0.0.1:8000',     // Laravel alternate
+        'http://127.0.0.1:3000',     // React alternate
+        'http://127.0.0.1:5173',     // Vite alternate
+        'capacitor://localhost',     // Capacitor on mobile
+        'app://smch-mobile',         // Mobile app scheme
+        // Add your production domains here, e.g. 'https://yourdomain.com'
     ],
 
     // Allowed Headers
@@ -48,12 +54,15 @@ return [
         'Origin',
         'X-XSRF-TOKEN',
         'X-CSRF-TOKEN',
+        'X-Socket-ID',               // For broadcasting
+        'Access-Control-Allow-Origin',
     ],
 
     // Headers exposed to the client
     'exposed_headers' => [
         'Authorization',
         'X-XSRF-TOKEN',
+        'Content-Disposition',       // For file downloads
     ],
 
     // Cache duration for preflight requests (in seconds)
