@@ -8,6 +8,7 @@ RUN apk add --no-cache \
     libxml2-dev \
     zip \
     unzip
+RUN apk add --no-cache     git     curl     libpng-dev     libjpeg-turbo-dev     freetype-dev     zip     unzip     libzip-dev     icu-dev     oniguruma-dev     libxml2-dev     libmcrypt-dev     libxslt-dev     libmemcached-dev     zlib-dev     libpq     postgresql-dev     supervisor     bash     shadow     tzdata
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
