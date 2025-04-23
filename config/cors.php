@@ -42,6 +42,7 @@ return [
         'http://127.0.0.1:5173',     // Vite alternate
         'capacitor://localhost',     // Capacitor on mobile
         'app://smch-mobile',         // Mobile app scheme
+        'http://localhost:8081',     // React Native Metro bundler
         // Add your production domains here, e.g. 'https://yourdomain.com'
     ],
 
