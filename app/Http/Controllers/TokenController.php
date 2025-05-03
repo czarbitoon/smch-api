@@ -26,7 +26,7 @@ class TokenController extends Controller
 
         return response()->json([
         'token' => $user->createToken('default')->plainTextToken,
-        'type' => $user->type,
+        'user_role' => $user->user_role,
         'office_id' => $user->office_id
       ]);
     }

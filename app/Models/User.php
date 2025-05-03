@@ -22,7 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'type',
+        'user_role',
         'api_token',
         'office_id',
         'profile_picture',
@@ -53,5 +53,6 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'user_role' => 'string',
     ];
 }

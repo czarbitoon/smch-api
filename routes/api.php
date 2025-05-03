@@ -7,6 +7,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TokenController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DeviceCategoryController;
+
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 
@@ -63,6 +64,8 @@ Route::middleware('auth:sanctum')->group(function () {
 // Device Category routes
 Route::get('/device-categories', [DeviceCategoryController::class, 'getCategories']);
 Route::get('/device-categories/{categoryId}/types', [DeviceCategoryController::class, 'getTypes']);
+Route::get('/device-categories/{categoryId}/subcategories', [DeviceCategoryController::class, 'getSubcategoriesByCategory']);
+
 Route::get('/device-types/{typeId}/subcategories', [DeviceCategoryController::class, 'getSubcategories']);
 Route::post('/device-categories', [DeviceCategoryController::class, 'createCategory']);
 Route::post('/device-categories/{categoryId}/types', [DeviceCategoryController::class, 'createType']);
@@ -73,4 +76,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/notifications', [NotificationsController::class, 'index']);
     Route::post('/notifications/{id}/read', [NotificationsController::class, 'markAsRead']);
     Route::post('/notifications', [NotificationsController::class, 'store']);
+});
+
+// Password reset/change endpoints
+Route::post('/password/forgot', [AuthController::class, 'forgotPassword']);
+Route::post('/password/reset', [AuthController::class, 'resetPassword']);
+Route::post('/password/change', [AuthController::class, 'changePassword'])->middleware('auth:sanctum');
+
+// User management endpoints (admin only)
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/users', [UserController::class, 'index']);
+    Route::get('/users/{id}', [UserController::class, 'show']);
+    Route::put('/users/{id}', [UserController::class, 'update']);
+    Route::put('/users/{id}/role', [UserController::class, 'changeRole']);
+    Route::put('/users/{id}/deactivate', [UserController::class, 'deactivate']);
 });

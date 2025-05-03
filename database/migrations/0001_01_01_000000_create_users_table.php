@@ -15,11 +15,12 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('profile_picture')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
-            $table->tinyInteger('type')->default(0); // user = 0, staff = 1, admin = 2, super admin = 3
+            $table->string('user_role')->default('user'); // user, staff, admin, superadmin
             $table->string('api_token', 255)->nullable()->unique();
         });
 

@@ -14,25 +14,25 @@ class UsersTableSeeder extends Seeder
                 'name' => 'Super Admin',
                 'email' => 'superadmin@example.com',
                 'password' => Hash::make('password'),
-                'type' => 3, // super admin
+                'user_role' => 'superadmin',
             ],
             [
                 'name' => 'Admin',
                 'email' => 'admin@example.com',
                 'password' => Hash::make('password'),
-                'type' => 2, // admin
+                'user_role' => 'admin',
             ],
             [
                 'name' => 'Staff',
                 'email' => 'staff@example.com',
                 'password' => Hash::make('password'),
-                'type' => 1, // staff
+                'user_role' => 'staff',
             ],
             [
                 'name' => 'User',
                 'email' => 'user@example.com',
                 'password' => Hash::make('password'),
-                'type' => 0, // user
+                'user_role' => 'user',
             ],
         ]);
     }

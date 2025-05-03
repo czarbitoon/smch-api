@@ -20,6 +20,8 @@ return new class extends Migration
             $table->text('resolution_notes')->nullable();
             $table->timestamp('resolved_at')->nullable();
             $table->foreignId('resolved_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->string('device_image_url')->nullable();
+            $table->string('report_image')->nullable();
             $table->timestamps();
         });
     }

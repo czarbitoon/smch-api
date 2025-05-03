@@ -24,7 +24,7 @@ class ReportSeeder extends Seeder
 
         // Get staff and admin users for resolved_by field
         $staffUsers = $users->filter(function ($user) {
-            return $user->type >= 1; // Staff and admin users
+            return in_array($user->user_role, ['staff', 'admin', 'superadmin']); // Staff, admin, superadmin
         });
 
         $statuses = ['pending', 'in_progress', 'resolved', 'closed'];
@@ -51,6 +51,9 @@ class ReportSeeder extends Seeder
 
             // Add resolution details for resolved reports
             if (in_array($status, ['resolved', 'closed'])) {
+                if ($staffUsers->isEmpty()) {
+                    throw new \Exception('No staff, admin, or superadmin users available for resolved_by.');
+                }
                 $resolvedBy = $staffUsers->random();
                 $resolvedAt = Carbon::parse($createdAt)->addHours(rand(1, 72));
 

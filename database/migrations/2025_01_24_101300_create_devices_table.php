@@ -21,6 +21,12 @@ class CreateDevicesTable extends Migration
             $table->string('model_number');
             $table->string('manufacturer');
             $table->string('status');
+            $table->string('image')->nullable();
+            $table->index('device_category_id');
+            $table->index('device_type_id');
+            $table->index('device_subcategory_id');
+            $table->index('office_id');
+            $table->index('status');
             $table->timestamps();
         });
 

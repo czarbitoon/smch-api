@@ -34,7 +34,10 @@ class DeviceCategoryController extends Controller
         try {
             $query = DeviceType::where('device_category_id', $categoryId);
 
-            if ($request->has('office_id')) {
+            $user = $request->user();
+            $isAdmin = $user && in_array($user->role, [2, 3]);
+
+            if (!$isAdmin && $request->has('office_id')) {
                 $officeId = $request->input('office_id');
                 $query->whereHas('subcategories.devices', function($q) use ($officeId) {
                     $q->where('office_id', $officeId);
@@ -53,7 +56,10 @@ class DeviceCategoryController extends Controller
         try {
             $query = DeviceSubcategory::where('device_type_id', $typeId);
 
-            if ($request->has('office_id')) {
+            $user = $request->user();
+            $isAdmin = $user && in_array($user->role, [2, 3]);
+
+            if (!$isAdmin && $request->has('office_id')) {
                 $officeId = $request->input('office_id');
                 $query->whereHas('devices', function($q) use ($officeId) {
                     $q->where('office_id', $officeId);
@@ -62,6 +68,25 @@ class DeviceCategoryController extends Controller
 
             $subcategories = $query->get();
             return response()->json($subcategories);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error fetching subcategories'], 500);
+        }
+    }
+
+    public function getSubcategoriesByCategory($categoryId, Request $request)
+    {
+        try {
+            $query = DeviceSubcategory::where('device_category_id', $categoryId);
+            $user = $request->user();
+            $isAdmin = $user && in_array($user->role, [2, 3]);
+            if (!$isAdmin && $request->has('office_id')) {
+                $officeId = $request->input('office_id');
+                $query->whereHas('devices', function($q) use ($officeId) {
+                    $q->where('office_id', $officeId);
+                });
+            }
+            $subcategories = $query->get();
+            return response()->json(['data' => ['subcategories' => $subcategories]]);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error fetching subcategories'], 500);
         }
