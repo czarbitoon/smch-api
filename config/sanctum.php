@@ -46,7 +46,7 @@ return [
     |
     */
 
-    'expiration' => 60, // Set token expiration to 60 minutes (3600 seconds)
+    'expiration' => 720, // Set token expiration to 12 hours (720 minutes)
 
     /*
     |--------------------------------------------------------------------------

@@ -22,7 +22,7 @@ class AdminController extends Controller
             $stats = [
                 'users' => User::count(),
                 'devices' => Device::count(),
-                'reports' => Report::where('status', 'active')->count(),
+                'reports' => Report::whereIn('status', ['pending','in_progress'])->count(),
                 'offices' => Office::count()
             ];
 

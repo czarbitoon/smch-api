@@ -21,6 +21,7 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
             $table->string('user_role')->default('user'); // user, staff, admin, superadmin
+            $table->string('type')->default('user'); // user, staff, admin, superadmin (for notification logic)
             $table->string('api_token', 255)->nullable()->unique();
         });
 
