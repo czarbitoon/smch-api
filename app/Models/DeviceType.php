@@ -14,11 +14,6 @@ class DeviceType extends Model
         'device_category_id',
     ];
 
-    public function subcategories()
-    {
-        return $this->hasMany(DeviceSubcategory::class);
-    }
-
     public function device_category()
     {
         return $this->belongsTo(DeviceCategory::class);

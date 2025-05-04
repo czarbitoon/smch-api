@@ -83,13 +83,22 @@ class ReportController extends Controller
                 'title' => $validatedData['title'],
                 'description' => $validatedData['description'],
                 'device_id' => $device->id,
-                'device_image_url' => $deviceImageUrl,
-                'report_image' => $reportImagePath,
                 'user_id' => $user->id,
-                'office_id' => $device->office_id,
+                'office_id' => $user->office_id,
                 'status' => strtolower($status),
-                'priority' => $priority
+                'priority' => $priority,
+                'report_image' => $reportImagePath,
+                'device_image_url' => $deviceImageUrl,
             ]);
+
+            // Synchronize device status with report status
+            if (in_array(strtolower($status), ['pending', 'in_progress'])) {
+                $device->status = 'maintenance';
+                $device->save();
+            } elseif (strtolower($status) === 'completed' || strtolower($status) === 'cancelled') {
+                $device->status = 'active';
+                $device->save();
+            }
 
             // Dispatch the ReportSubmitted event
             try {
@@ -187,6 +196,16 @@ class ReportController extends Controller
             }
 
             $report->save();
+
+            // Synchronize device status with report status
+            $device = $report->device;
+            if (in_array(strtolower($report->status), ['pending', 'in_progress'])) {
+                $device->status = 'maintenance';
+                $device->save();
+            } elseif (strtolower($report->status) === 'completed' || strtolower($report->status) === 'cancelled') {
+                $device->status = 'active';
+                $device->save();
+            }
 
             return response()->json([
                 'message' => 'Report updated successfully',

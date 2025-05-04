@@ -7,7 +7,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TokenController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DeviceCategoryController;
-
+use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 
@@ -76,6 +76,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/notifications', [NotificationsController::class, 'index']);
     Route::post('/notifications/{id}/read', [NotificationsController::class, 'markAsRead']);
     Route::post('/notifications', [NotificationsController::class, 'store']);
+    Route::get('/notifications/unread-count', [NotificationsController::class, 'unreadCount']);
 });
 
 // Password reset/change endpoints

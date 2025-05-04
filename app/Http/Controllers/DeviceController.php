@@ -64,7 +64,6 @@ class DeviceController extends Controller
             $filters = $request->only([
                 'device_category_id',
                 'device_type_id',
-                'device_subcategory_id',
                 'office_id',
                 'status',
                 'manufacturer',
@@ -118,7 +117,7 @@ class DeviceController extends Controller
                 'office_id' => 'required|exists:offices,id',
                 'device_category_id' => 'required|exists:device_categories,id',
                 'device_type_id' => 'required|exists:device_types,id',
-                'device_subcategory_id' => 'required|exists:device_subcategories,id'
+
             ]);
 
             $device = new Device($request->all());
@@ -154,7 +153,6 @@ class DeviceController extends Controller
                 'office_id' => 'sometimes|exists:offices,id',
                 'device_category_id' => 'sometimes|exists:device_categories,id',
                 'device_type_id' => 'sometimes|exists:device_types,id',
-                'device_subcategory_id' => 'sometimes|exists:device_subcategories,id',
                 'status' => 'sometimes|string'
             ]);
 

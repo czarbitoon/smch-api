@@ -13,7 +13,6 @@ class DatabaseSeeder extends Seeder
             OfficeSeeder::class,
             DeviceCategorySeeder::class,
             DeviceTypeSeeder::class,
-            DeviceSubcategorySeeder::class,
             DeviceSeeder::class,
             ReportSeeder::class,
         ]);

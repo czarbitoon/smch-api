@@ -15,48 +15,48 @@ class DeviceSeeder extends Seeder
         $deviceConfigs = [
             // Laptops
             [
-                'subcategory_id' => 1, // Student Laptops
+                'device_type_id' => 1, // Laptops
                 'manufacturers' => ['Dell', 'HP', 'Lenovo'],
                 'count_per_office' => 2
             ],
             [
-                'subcategory_id' => 2, // Teacher Laptops
+                'device_type_id' => 1, // Laptops
                 'manufacturers' => ['Apple', 'Dell', 'Lenovo'],
                 'count_per_office' => 1
             ],
             [
-                'subcategory_id' => 3, // Administrative Laptops
+                'device_type_id' => 1, // Laptops
                 'manufacturers' => ['Dell', 'HP', 'Lenovo'],
                 'count_per_office' => 1
             ],
 
             // Desktops
             [
-                'subcategory_id' => 4, // Library Computers
+                'device_type_id' => 2, // Desktops
                 'manufacturers' => ['Dell', 'HP'],
                 'count_per_office' => 3
             ],
             [
-                'subcategory_id' => 5, // Lab Computers
+                'device_type_id' => 2, // Desktops
                 'manufacturers' => ['Dell', 'HP', 'Lenovo'],
                 'count_per_office' => 5
             ],
 
             // Projectors
             [
-                'subcategory_id' => 7, // Classroom Projectors
+                'device_type_id' => 4, // Projectors
                 'manufacturers' => ['Epson', 'BenQ', 'ViewSonic'],
                 'count_per_office' => 1
             ],
             [
-                'subcategory_id' => 8, // Auditorium Projectors
+                'device_type_id' => 4, // Projectors
                 'manufacturers' => ['Epson', 'Sony'],
                 'count_per_office' => 1
             ],
 
             // Printers
             [
-                'subcategory_id' => 10, // Network Printers
+                'device_type_id' => 10, // Printers
                 'manufacturers' => ['HP', 'Canon', 'Epson'],
                 'count_per_office' => 1
             ]
@@ -86,34 +86,36 @@ class DeviceSeeder extends Seeder
                         11 => 'scanner.jpg',
                         12 => 'copier.png',
                     ];
-                    // Map subcategory_id to device_type_id (customize as needed)
-                    $subcategoryToType = [
-                        1 => 1, // Student Laptops
-                        2 => 1, // Teacher Laptops
-                        3 => 1, // Administrative Laptops
-                        4 => 2, // Library Computers
-                        5 => 2, // Lab Computers
-                        7 => 4, // Classroom Projectors
-                        8 => 4, // Auditorium Projectors
-                        10 => 10, // Network Printers
-                        // Add more mappings as needed
-                    ];
-                    $deviceTypeId = $subcategoryToType[$config['subcategory_id']] ?? null;
+                    $deviceTypeId = $config['device_type_id'];
                     $image = $deviceTypeId && isset($typeImages[$deviceTypeId]) ? $typeImages[$deviceTypeId] : 'default_device.jpg';
                     Device::create([
                         'name' => $manufacturer . ' Device',
                         'description' => $faker->sentence(),
-                        'device_subcategory_id' => $config['subcategory_id'],
+                        'device_type_id' => $config['device_type_id'],
                         'office_id' => $officeId,
                         'serial_number' => $faker->unique()->regexify('[A-Z0-9]{10}'),
                         'model_number' => $faker->regexify('[A-Z]{2}[0-9]{4}'),
                         'manufacturer' => $manufacturer,
                         'status' => $status,
-                        'image' => $image
+                        'image' => $image,
+                        'device_category_id' => self::resolveDeviceCategoryId($config['device_type_id'])
                     ]);
                 }
             }
         }
 
+    }
+
+    /**
+     * Resolve device_category_id from device_type_id.
+     */
+    private static function resolveDeviceCategoryId($deviceTypeId)
+    {
+        // Map device_type_id to device_category_id based on DeviceTypeSeeder
+        if (in_array($deviceTypeId, [1,2,3])) return 1; // Laptops, Desktops, Tablets
+        if (in_array($deviceTypeId, [4,5,6])) return 2; // Projectors, Speakers, Microphones
+        if (in_array($deviceTypeId, [7,8,9])) return 3; // Routers, Switches, Access Points
+        if (in_array($deviceTypeId, [10,11,12])) return 4; // Printers, Scanners, Copiers
+        return 5; // Other Devices
     }
 }
