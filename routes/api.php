@@ -64,12 +64,8 @@ Route::middleware('auth:sanctum')->group(function () {
 // Device Category routes
 Route::get('/device-categories', [DeviceCategoryController::class, 'getCategories']);
 Route::get('/device-categories/{categoryId}/types', [DeviceCategoryController::class, 'getTypes']);
-Route::get('/device-categories/{categoryId}/subcategories', [DeviceCategoryController::class, 'getSubcategoriesByCategory']);
-
-Route::get('/device-types/{typeId}/subcategories', [DeviceCategoryController::class, 'getSubcategories']);
 Route::post('/device-categories', [DeviceCategoryController::class, 'createCategory']);
 Route::post('/device-categories/{categoryId}/types', [DeviceCategoryController::class, 'createType']);
-Route::post('/device-types/{typeId}/subcategories', [DeviceCategoryController::class, 'createSubcategory']);
 
 // Notification routes
 Route::middleware('auth:sanctum')->group(function () {

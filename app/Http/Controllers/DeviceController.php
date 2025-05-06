@@ -58,7 +58,7 @@ class DeviceController extends Controller
                 return response()->json(['success' => false, 'message' => 'Database connection error', 'error' => $e->getMessage()], 500);
             }
 
-            $query = Device::with(['category', 'type', 'subcategory', 'office']);
+            $query = Device::with(['category', 'type', 'office']);
 
             // Integrate DeviceFilter for dynamic filtering
             $filters = $request->only([

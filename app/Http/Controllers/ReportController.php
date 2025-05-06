@@ -139,17 +139,17 @@ class ReportController extends Controller
         $user = Auth::user();
         $query = Report::with(['device', 'user', 'office']);
 
-        // Filter based on user type
+        // Filter based on user role
         if (!$user) {
             return response()->json(['error' => 'User not authenticated'], 401);
         }
 
-        if ($user->type >= 2) { // Admin (2) and Superadmin (3) can see all reports
-            // Admin can see all reports
-        } elseif ($user->type === 1) { // Staff (1)
+        if (in_array($user->role, ['admin', 'superadmin'])) { // Admin and Superadmin can see all reports
+            // Admin and Superadmin can see all reports
+        } elseif ($user->role === 'staff') { // Staff
             // Staff can see reports from their office
             $query->where('office_id', $user->office_id);
-        } else { // Regular users (0)
+        } else { // Regular users
             // Regular users can only see their own reports
             $query->where('user_id', $user->id);
         }
@@ -169,8 +169,8 @@ class ReportController extends Controller
             $report = Report::findOrFail($id);
 
             // Only staff and admin can update reports
-            if ($user->type < 1) {
-                return response()->json(['error' => 'Unauthorized. Only staff and admin can update reports'], 403);
+            if (!in_array($user->role, ['staff', 'admin', 'superadmin'])) {
+                return response()->json(['error' => 'Unauthorized. Only staff, admin, or superadmin can update reports'], 403);
             }
 
             $validatedData = $request->validate([
@@ -243,9 +243,9 @@ class ReportController extends Controller
             $report = Report::findOrFail($id);
 
             // Only staff, admin, and the report creator can delete reports
-            if ($user->type < 1 && $report->user_id !== $user->id) {
+            if (!in_array($user->role, ['staff', 'admin', 'superadmin']) && $report->user_id !== $user->id) {
                 return response()->json([
-                    'error' => 'Unauthorized. Only staff, admin, or the report creator can delete reports'
+                    'error' => 'Unauthorized. Only staff, admin, superadmin, or the report creator can delete reports'
                 ], 403);
             }
 
@@ -273,19 +273,14 @@ class ReportController extends Controller
                 return response()->json(['error' => 'User not authenticated'], 401);
             }
 
-            if ($user->type < 1) {
-                return response()->json(['error' => 'Unauthorized. Only staff and admin can resolve reports'], 403);
+            // Only staff and admin can resolve reports
+            if (!in_array($user->role, ['staff', 'admin', 'superadmin'])) {
+                return response()->json(['error' => 'Unauthorized. Only staff, admin, or superadmin can resolve reports'], 403);
             }
 
             $report = Report::findOrFail($id);
 
-            // Check if report can be resolved
-            if ($report->status === 'resolved') {
-                return response()->json([
-                    'error' => 'Report is already resolved'
-                ], 400);
-            }
-
+            // Only allow resolving if status is pending or in_progress
             if (!in_array($report->status, ['pending', 'in_progress'])) {
                 return response()->json([
                     'error' => 'Cannot resolve a report that is ' . $report->status
@@ -293,21 +288,39 @@ class ReportController extends Controller
             }
 
             $validatedData = $request->validate([
-                'resolution_notes' => 'required|string|max:1000'
+                'status' => 'required|in:completed,cancelled',
+                'resolution_notes' => 'required_if:status,completed|string|nullable|max:1000'
+            ], [
+                'status.required' => 'The status field is required',
+                'status.in' => 'Status must be either completed or cancelled',
+                'resolution_notes.required_if' => 'Resolution notes are required when status is completed',
             ]);
 
             DB::beginTransaction();
             try {
-                $report->status = 'resolved';
+                $report->status = $validatedData['status'];
                 $report->resolved_by = $user->id;
-                $report->resolution_notes = $validatedData['resolution_notes'];
                 $report->resolved_at = now();
+                if ($validatedData['status'] === 'completed') {
+                    $report->resolution_notes = $validatedData['resolution_notes'];
+                } else {
+                    $report->resolution_notes = null;
+                }
                 $report->save();
+
+                // Synchronize device status with report status
+                $device = $report->device;
+                if (in_array($report->status, ['pending', 'in_progress'])) {
+                    $device->status = 'maintenance';
+                } elseif (in_array($report->status, ['completed', 'cancelled'])) {
+                    $device->status = 'active';
+                }
+                $device->save();
 
                 // Create notification for the report owner
                 Notification::create([
-                    'title' => 'Report Resolved',
-                    'message' => "Your report '{$report->title}' has been resolved.",
+                    'title' => 'Report ' . ucfirst($report->status),
+                    'message' => "Your report '{$report->title}' has been marked as {$report->status}.",
                     'user_id' => $report->user_id,
                     'report_id' => $report->id,
                     'read' => false
@@ -323,7 +336,7 @@ class ReportController extends Controller
                 DB::rollBack();
                 throw $e;
             }
-        } catch (\Illuminate\Database\EloquentModelNotFoundException $e) {
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json(['error' => 'Report not found'], 404);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([

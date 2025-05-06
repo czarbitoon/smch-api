@@ -31,7 +31,6 @@ class OfficeController extends Controller
                 $formattedOffices[] = [
                     'id' => (int)$office->id,
                     'name' => $office->name,
-                    'description' => $office->description ?? '',
                     'devices_count' => (int)($office->devices_count ?? 0),
                     'created_at' => $office->created_at,
                     'updated_at' => $office->updated_at
@@ -78,7 +77,6 @@ class OfficeController extends Controller
 
             $validatedData = $request->validate([
                 'name' => 'required|string|max:255',
-                'location' => 'required|string|max:255'
             ]);
 
             $office = Office::create($validatedData);
@@ -134,7 +132,6 @@ class OfficeController extends Controller
             $office = Office::findOrFail($id);
             $validatedData = $request->validate([
                 'name' => 'sometimes|required|string|max:255',
-                'location' => 'sometimes|required|string|max:255'
             ]);
 
             $office->update($validatedData);
