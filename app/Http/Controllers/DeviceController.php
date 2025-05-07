@@ -80,7 +80,11 @@ class DeviceController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $devices
+                'data' => $devices->through(function ($device) {
+                    return array_merge($device->toArray(), [
+                        'image_url' => $device->image_url
+                    ]);
+                })
             ]);
         } catch (\Exception $e) {
             Log::error('Error in showDevices', ['error' => $e->getMessage()]);
@@ -106,6 +110,26 @@ class DeviceController extends Controller
         }
     }
 
+    public function showDevice($id)
+    {
+        try {
+            Log::info('Fetching device details', ['device_id' => $id]);
+            $device = Device::with(['category', 'type', 'office'])->findOrFail((int)$id);
+            Log::info('Device details retrieved successfully', ['device_id' => $id]);
+            return response()->json(['success' => true, 'device' => array_merge($device->toArray(), [
+                'image_url' => $device->image_url
+            ])], 200);
+        } catch (\Exception $e) {
+            Log::error('Error fetching device details: ' . $e->getMessage(), [
+                'device_id' => $id,
+                'error_code' => $e->getCode(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+            return response()->json(['success' => false, 'message' => 'Error fetching device details: ' . $e->getMessage()], 500);
+        }
+    }
+
     public function createDevice(Request $request)
     {
         try {
@@ -117,10 +141,20 @@ class DeviceController extends Controller
                 'office_id' => 'required|exists:offices,id',
                 'device_category_id' => 'required|exists:device_categories,id',
                 'device_type_id' => 'required|exists:device_types,id',
-
+                // No validation for image, it's optional
             ]);
 
-            $device = new Device($request->all());
+            $data = $request->all();
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $imageName = uniqid('device_') . '.' . $image->getClientOriginalExtension();
+                $image->storeAs('public/devices', $imageName);
+                $data['image'] = $imageName;
+            } else {
+                $data['image'] = 'default.png';
+            }
+
+            $device = new Device($data);
             $device->status = 'active'; // Set default status
             $device->save();
 
@@ -153,8 +187,21 @@ class DeviceController extends Controller
                 'office_id' => 'sometimes|exists:offices,id',
                 'device_category_id' => 'sometimes|exists:device_categories,id',
                 'device_type_id' => 'sometimes|exists:device_types,id',
-                'status' => 'sometimes|string'
+                'status' => 'sometimes|string',
+                // No validation for image, it's optional
             ]);
+
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $imageName = uniqid('device_') . '.' . $image->getClientOriginalExtension();
+                $image->storeAs('public/devices', $imageName);
+                $validatedData['image'] = $imageName;
+            }
+
+            // If no image is provided and device has no image, set to default
+            if (!isset($validatedData['image']) && !$device->image) {
+                $validatedData['image'] = 'default.png';
+            }
 
             $device->update($validatedData);
             Log::info('Device updated successfully', ['device_id' => $id, 'changes' => $validatedData]);

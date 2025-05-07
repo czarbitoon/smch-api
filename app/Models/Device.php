@@ -19,7 +19,8 @@ class Device extends Model
         'serial_number',
         'model_number',
         'manufacturer',
-        'status'
+        'status',
+        'image'
     ];
 
     protected static function boot()
@@ -49,5 +50,15 @@ class Device extends Model
     public function issues()
     {
         return $this->hasMany(Issue::class);
+    }
+
+    public function getImageUrlAttribute()
+    {
+        if (!$this->image) {
+            // Return a default image URL if no image is set
+            return url('storage/devices/default.png');
+        }
+        // Adjust the storage path and URL generation as needed for your setup
+        return url('storage/devices/' . $this->image);
     }
 }

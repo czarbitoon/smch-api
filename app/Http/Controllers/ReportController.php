@@ -23,7 +23,7 @@ class ReportController extends Controller
                 'description' => 'required|string',
                 'device_id' => 'required|exists:devices,id',
                 'status' => ['sometimes', 'string', function($attribute, $value, $fail) {
-                    $allowedStatuses = ['pending', 'in_progress', 'completed', 'cancelled'];
+                    $allowedStatuses = ['pending', 'in_progress', 'resolved', 'closed'];
                     if (!in_array(strtolower($value), $allowedStatuses)) {
                         $fail('The status must be one of: ' . implode(', ', $allowedStatuses));
                     }
@@ -347,5 +347,24 @@ class ReportController extends Controller
             \Log::error('Error in resolveReport: ' . $e->getMessage());
             return response()->json(['error' => 'An error occurred while resolving the report'], 500);
         }
+    }
+    public function show($id)
+    {
+        $user = Auth::user();
+        try {
+            $report = Report::with(['device', 'user', 'office'])->findOrFail($id);
+            // Authorization: Admins (role 2+) can view any report; others only their own
+            if ($user->role < 2 && $report->user_id !== $user->id) {
+                return response()->json(['error' => 'Unauthorized'], 403);
+            }
+            return response()->json(['report' => $report], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'Report not found'], 404);
+        } catch (\Exception $e) {
+            \Log::error('Error in show report: ' . $e->getMessage());
+            return response()->json(['error' => 'An unexpected error occurred'], 500);
+        }
+        // Log the report status and description for debugging
+        \Log::info('Report Status: ' . $report->status . ', Description: ' . $report->description);
     }
 }

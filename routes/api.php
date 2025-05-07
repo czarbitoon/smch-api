@@ -45,6 +45,7 @@ Route::get('/user/stats', [UserController::class, 'stats'])->middleware('auth:sa
 // Device routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/devices', [DeviceController::class, 'showDevices']);
+    Route::get('/devices/{id}', [DeviceController::class, 'showDevice']);
     Route::get('/office-devices', [OfficeController::class, 'getDevices']);
     Route::post('/devices', [DeviceController::class, 'createDevice']);
     Route::put('/devices/{id}', [DeviceController::class, 'updateDevice']);
@@ -55,6 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
 // Report routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/reports', [ReportController::class, 'getReports']);
+    Route::get('/reports/{id}', [ReportController::class, 'show']);
     Route::post('/reports', [ReportController::class, 'addReport']);
     Route::put('/reports/{id}', [ReportController::class, 'update']);
     Route::delete('/reports/{id}', [ReportController::class, 'delete']);
