@@ -7,6 +7,25 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Deploying to Vercel
+
+To deploy this Laravel backend to [Vercel](https://vercel.com):
+
+1. Push this repository to GitHub, GitLab, or Bitbucket.
+2. Go to [vercel.com/import](https://vercel.com/import) and import your project.
+3. Set the **Framework Preset** to `Other`.
+4. Set the build command to `composer install && php artisan config:cache && php artisan route:cache`.
+5. Set the output directory to `public`.
+6. Add your environment variables in the Vercel dashboard under **Project Settings > Environment Variables** (copy from `.env.example`).
+7. For storage (uploads, logs), use a cloud storage provider or Vercel's recommended solutions, as local storage is ephemeral.
+8. After deployment, your API will be live on your Vercel domain.
+
+### Notes
+- Update any hardcoded URLs or storage paths to be compatible with Vercel's environment.
+- For database connections, use managed cloud databases and set credentials in environment variables.
+- If you use queues or jobs, consider using external queue services (e.g., Redis Cloud, Laravel Forge, or Vercel Cron Jobs).
+- For more details, see the [Vercel documentation](https://vercel.com/docs) and [Laravel deployment guide](https://laravel.com/docs/deployment).
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
