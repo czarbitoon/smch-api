@@ -17,6 +17,9 @@ WORKDIR /var/www/html
 
 COPY . .
 
+# Ensure .env exists before artisan commands
+RUN if [ ! -f .env ]; then cp .env.example .env; fi
+
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev \
     && php artisan key:generate \
     && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache

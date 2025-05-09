@@ -91,6 +91,9 @@ class ReportController extends Controller
                 'device_image_url' => $deviceImageUrl,
             ]);
 
+            // Dispatch event for broadcasting (real-time notification)
+            event(new ReportSubmitted($report));
+
             // Synchronize device status with report status
             if (in_array(strtolower($status), ['pending', 'in_progress'])) {
                 $device->status = 'maintenance';
