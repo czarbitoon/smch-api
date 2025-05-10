@@ -19,6 +19,7 @@ return [
         'login',
         'logout',
         'register',
+        'storage/*',
     ],
 
     // Allowed HTTP Methods
