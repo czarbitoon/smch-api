@@ -10,6 +10,7 @@ use App\Http\Controllers\DeviceCategoryController;
 use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ImageController;
 
 // CSRF Token route
 Route::get('/sanctum/csrf-cookie', function () {
@@ -69,13 +70,25 @@ Route::get('/device-categories/{categoryId}/types', [DeviceCategoryController::c
 Route::post('/device-categories', [DeviceCategoryController::class, 'createCategory']);
 Route::post('/device-categories/{categoryId}/types', [DeviceCategoryController::class, 'createType']);
 
+// Device Type routes
+Route::get('/device-types', [\App\Http\Controllers\DeviceTypeController::class, 'index']);
+Route::get('/device-types/{id}', [\App\Http\Controllers\DeviceTypeController::class, 'show']);
+Route::post('/device-types', [\App\Http\Controllers\DeviceTypeController::class, 'store']);
+Route::put('/device-types/{id}', [\App\Http\Controllers\DeviceTypeController::class, 'update']);
+Route::delete('/device-types/{id}', [\App\Http\Controllers\DeviceTypeController::class, 'destroy']);
+
 // Notification routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/notifications', [NotificationsController::class, 'index']);
     Route::post('/notifications/{id}/read', [NotificationsController::class, 'markAsRead']);
     Route::post('/notifications', [NotificationsController::class, 'store']);
     Route::get('/notifications/unread-count', [NotificationsController::class, 'unreadCount']);
+    // Image upload and deletion (protected)
+    Route::post('/images/upload', [ImageController::class, 'upload']);
+    Route::delete('/images', [ImageController::class, 'destroy']);
 });
+// Public image serving
+Route::get('/images/{folder}/{filename}', [ImageController::class, 'show']);
 
 // Password reset/change endpoints
 Route::post('/password/forgot', [AuthController::class, 'forgotPassword']);

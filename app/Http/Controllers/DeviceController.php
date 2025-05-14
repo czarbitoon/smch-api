@@ -146,10 +146,11 @@ class DeviceController extends Controller
 
             $data = $request->all();
             if ($request->hasFile('image')) {
+                // Use ImageController logic for upload
                 $image = $request->file('image');
-                $imageName = uniqid('device_') . '.' . $image->getClientOriginalExtension();
-                $image->storeAs('public/devices', $imageName);
-                $data['image'] = $imageName;
+                $filename = \Illuminate\Support\Str::uuid() . '.' . $image->getClientOriginalExtension();
+                $path = $image->storeAs('devices', $filename, 'public');
+                $data['image'] = $path;
             } else {
                 $data['image'] = 'default.png';
             }
@@ -192,10 +193,11 @@ class DeviceController extends Controller
             ]);
 
             if ($request->hasFile('image')) {
+                // Use ImageController logic for upload
                 $image = $request->file('image');
-                $imageName = uniqid('device_') . '.' . $image->getClientOriginalExtension();
-                $image->storeAs('public/devices', $imageName);
-                $validatedData['image'] = $imageName;
+                $filename = \Illuminate\Support\Str::uuid() . '.' . $image->getClientOriginalExtension();
+                $path = $image->storeAs('devices', $filename, 'public');
+                $validatedData['image'] = $path;
             }
 
             // If no image is provided and device has no image, set to default

@@ -69,7 +69,11 @@ class ReportController extends Controller
             // Handle report image upload if provided
             $reportImagePath = null;
             if ($request->hasFile('report_image')) {
-                $reportImagePath = $request->file('report_image')->store('report_images', 'public');
+                // Use ImageController logic for upload
+                $image = $request->file('report_image');
+                $filename = \Illuminate\Support\Str::uuid() . '.' . $image->getClientOriginalExtension();
+                $path = $image->storeAs('report_images', $filename, 'public');
+                $reportImagePath = $path;
             }
 
             // Get device image URL if available
