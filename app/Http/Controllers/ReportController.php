@@ -28,12 +28,6 @@ class ReportController extends Controller
                         $fail('The status must be one of: ' . implode(', ', $allowedStatuses));
                     }
                 }],
-                'priority' => ['required', 'string', function($attribute, $value, $fail) {
-                    $allowedPriorities = ['Low', 'Medium', 'High', 'Critical'];
-                    if (!in_array(ucfirst(strtolower($value)), $allowedPriorities)) {
-                        $fail('The priority must be one of: ' . implode(', ', $allowedPriorities));
-                    }
-                }],
                 'report_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ], [
                 'title.required' => 'The report title is required',
@@ -42,8 +36,6 @@ class ReportController extends Controller
                 'device_id.required' => 'A device must be selected for the report',
                 'device_id.exists' => 'The selected device does not exist',
                 'status.in' => 'Invalid status. Must be one of: pending, in_progress, completed, cancelled',
-                'priority.required' => 'Priority level is required',
-                'priority.in' => 'Priority must be one of: Low, Medium, High, Critical',
                 'report_image.image' => 'The file must be an image',
                 'report_image.mimes' => 'The image must be a file of type: jpeg, png, jpg, gif',
                 'report_image.max' => 'The image must not be larger than 2MB',
@@ -56,15 +48,6 @@ class ReportController extends Controller
             if (!$user) {
                 return response()->json(['error' => 'User not authenticated'], 401);
             }
-
-            // Check if priority is valid
-            if (isset($validatedData['priority']) && !in_array($validatedData['priority'], ['Low', 'Medium', 'High', 'Critical'])) {
-                return response()->json(['error' => 'Invalid priority level'], 422);
-            }
-
-            // Normalize status and priority case
-            $status = $validatedData['status'] ?? 'pending';
-            $priority = ucfirst(strtolower($validatedData['priority']));
 
             // Handle report image upload if provided
             $reportImagePath = null;
@@ -90,7 +73,6 @@ class ReportController extends Controller
                 'user_id' => $user->id,
                 'office_id' => $user->office_id,
                 'status' => strtolower($status),
-                'priority' => $priority,
                 'report_image' => $reportImagePath,
                 'device_image_url' => $deviceImageUrl,
             ]);
@@ -182,13 +164,11 @@ class ReportController extends Controller
 
             $validatedData = $request->validate([
                 'status' => 'required|in:pending,in_progress,completed,cancelled',
-                'resolution_notes' => 'required_if:status,completed|string|nullable',
-                'priority' => 'sometimes|string|in:Low,Medium,High,Critical'
+                'resolution_notes' => 'required_if:status,completed|string|nullable'
             ], [
                 'status.required' => 'The status field is required',
                 'status.in' => 'Invalid status. Must be one of: pending, in_progress, completed, cancelled',
-                'resolution_notes.required_if' => 'Resolution notes are required when status is completed',
-                'priority.in' => 'Priority must be one of: Low, Medium, High, Critical'
+                'resolution_notes.required_if' => 'Resolution notes are required when status is completed'
             ]);
 
             $report->status = $validatedData['status'];
@@ -196,10 +176,6 @@ class ReportController extends Controller
                 $report->resolution_notes = $validatedData['resolution_notes'];
                 $report->resolved_by = $user->id;
                 $report->resolved_at = now();
-            }
-
-            if (isset($validatedData['priority'])) {
-                $report->priority = $validatedData['priority'];
             }
 
             $report->save();

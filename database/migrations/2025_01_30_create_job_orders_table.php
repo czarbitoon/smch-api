@@ -15,7 +15,7 @@ return new class extends Migration
             $table->foreignId('device_id')->constrained()->onDelete('cascade');
             $table->string('job_type');
             $table->text('description');
-            $table->enum('priority', ['low', 'medium', 'high', 'urgent'])->default('medium');
+
             $table->enum('status', ['pending', 'in_progress', 'completed', 'cancelled'])->default('pending');
             $table->text('work_performed')->nullable();
             $table->text('parts_used')->nullable();

@@ -44,7 +44,7 @@ class ReportSeeder extends Seeder
                 'user_id' => $user->id,
                 'office_id' => $device->office_id,
                 'status' => $status,
-                'priority' => $priorities[array_rand($priorities)],
+
                 'created_at' => $createdAt,
                 'updated_at' => $createdAt
             ];
