@@ -62,6 +62,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/reports/{id}', [ReportController::class, 'update']);
     Route::delete('/reports/{id}', [ReportController::class, 'delete']);
     Route::post('/reports/{id}/resolve', [ReportController::class, 'resolveReport']);
+    Route::post('/reports/{id}/status', [ReportController::class, 'updateStatus']);
 });
 
 // Device Category routes

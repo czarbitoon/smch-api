@@ -126,7 +126,7 @@ class ReportController extends Controller
     public function getReports(Request $request)
     {
         $user = Auth::user();
-        $query = Report::with(['device', 'user', 'office']);
+        $query = Report::with(['device', 'user', 'office', 'resolvedByUser']);
 
         // Filter based on user role
         if (!$user) {
@@ -335,7 +335,7 @@ class ReportController extends Controller
     {
         $user = Auth::user();
         try {
-            $report = Report::with(['device', 'user', 'office'])->findOrFail($id);
+            $report = Report::with(['device', 'user', 'office', 'resolvedByUser'])->findOrFail($id);
             // Authorization: Admins (role 2+) can view any report; others only their own
             if ($user->role < 2 && $report->user_id !== $user->id) {
                 return response()->json(['error' => 'Unauthorized'], 403);
@@ -349,5 +349,72 @@ class ReportController extends Controller
         }
         // Log the report status and description for debugging
         \Log::info('Report Status: ' . $report->status . ', Description: ' . $report->description);
+    }
+
+    /**
+     * Update the status of a report (for POST /reports/{id}/status)
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        try {
+            $user = Auth::user();
+            if (!$user) {
+                return response()->json(['error' => 'User not authenticated'], 401);
+            }
+
+            $report = Report::findOrFail($id);
+
+            // Only staff, admin, or superadmin can update status
+            if (!in_array($user->role, ['staff', 'admin', 'superadmin'])) {
+                return response()->json(['error' => 'Unauthorized. Only staff, admin, or superadmin can update report status'], 403);
+            }
+
+            $validatedData = $request->validate([
+                'status' => 'required|in:pending,in_progress,resolved,closed',
+            ], [
+                'status.required' => 'The status field is required',
+                'status.in' => 'Invalid status. Must be one of: pending, in_progress, resolved, closed',
+            ]);
+
+            $report->status = $validatedData['status'];
+            if ($validatedData['status'] === 'resolved') {
+                $report->resolved_by = $user->id;
+                $report->resolved_at = now();
+            }
+            $report->save();
+
+            // Synchronize device status with report status
+            $device = $report->device;
+            if (in_array(strtolower($report->status), ['pending', 'in_progress'])) {
+                $device->status = 'maintenance';
+                $device->save();
+            } elseif (in_array(strtolower($report->status), ['resolved', 'closed'])) {
+                $device->status = 'active';
+                $device->save();
+            }
+
+            return response()->json([
+                'message' => 'Report status updated successfully',
+                'report' => $report->load(['device', 'user', 'office'])
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::info('Report status update validation failed: ' . json_encode([
+                'input' => $request->all(),
+                'errors' => $e->errors()
+            ]));
+            return response()->json([
+                'error' => 'Validation error',
+                'details' => $e->errors()
+            ], 422);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Report not found'
+            ], 404);
+        } catch (\Exception $e) {
+            \Log::error('Error in updateStatus: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'An unexpected error occurred while updating the report status'
+            ], 500);
+        }
     }
 }

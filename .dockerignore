@@ -2,7 +2,10 @@ node_modules
 npm-debug.log
 dist
 .env
-.env.*
+.env.local
+.env.production
+.env.testing
+!.env.example
 vendor
 storage/app/public
 storage/framework

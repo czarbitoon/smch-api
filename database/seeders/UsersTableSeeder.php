@@ -15,24 +15,28 @@ class UsersTableSeeder extends Seeder
                 'email' => 'superadmin@example.com',
                 'password' => Hash::make('password'),
                 'user_role' => 'superadmin',
+                'office_id' => null,
             ],
             [
                 'name' => 'Admin',
                 'email' => 'admin@example.com',
                 'password' => Hash::make('password'),
                 'user_role' => 'admin',
+                'office_id' => null,
             ],
             [
                 'name' => 'Staff',
                 'email' => 'staff@example.com',
                 'password' => Hash::make('password'),
                 'user_role' => 'staff',
+                'office_id' => 2, // Computer Lab 1
             ],
             [
                 'name' => 'User',
                 'email' => 'user@example.com',
                 'password' => Hash::make('password'),
                 'user_role' => 'user',
+                'office_id' => 1, // Main Office
             ],
         ]);
     }
