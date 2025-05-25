@@ -1,3 +1,4 @@
+# Builder stage
 FROM php:8.2-fpm-alpine as builder
 
 RUN apk add --no-cache \
@@ -7,7 +8,12 @@ RUN apk add --no-cache \
     zip \
     unzip \
     oniguruma-dev \
-    libxml2-dev
+    libxml2-dev \
+    libmysqlclient-dev \
+    autoconf \
+    gcc \
+    g++ \
+    make
 
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd pdo_mysql mbstring exif pcntl bcmath
@@ -22,14 +28,16 @@ COPY . .
 RUN composer dump-autoload --optimize
 RUN chown -R www-data:www-data storage bootstrap/cache
 
+# Final stage
 FROM php:8.2-fpm-alpine
 
+# Copy extensions and configuration from builder stage
 COPY --from=builder /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
 COPY --from=builder /usr/local/etc/php/conf.d/ /usr/local/etc/php/conf.d/
+
 WORKDIR /var/www/html
 COPY --from=builder /var/www/html /var/www/html
 RUN chown -R www-data:www-data storage bootstrap/cache
+
 EXPOSE 8000
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
-
-RUN docker-php-ext-install pdo_mysql
