@@ -44,6 +44,7 @@ return [
         'capacitor://localhost',     // Capacitor on mobile
         'app://smch-mobile',         // Mobile app scheme
         'http://localhost:8081',     // React Native Metro bundler
+        'https://smch-api-production.up.railway.app', // New API endpoint
         // Add your production domains here, e.g. 'https://yourdomain.com'
     ],
 
