@@ -143,7 +143,15 @@ class ReportController extends Controller
             $query->where('user_id', $user->id);
         }
 
-        $reports = $query->latest()->get();
+        // Add created_at ordering
+        $orderByCreated = $request->input('order_by_created', 'latest');
+        if ($orderByCreated === 'earliest') {
+            $query->orderBy('created_at', 'asc');
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        $reports = $query->get();
         return response()->json($reports);
     }
 

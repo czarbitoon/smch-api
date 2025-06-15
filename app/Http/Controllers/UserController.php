@@ -34,9 +34,9 @@ class UserController extends Controller
 
     public function index()
     {
-        // Only allow access for admin or staff
+        // Only allow access for admin or superadmin
         $user = Auth::user();
-        if (!$user || !in_array($user->user_role, ['admin', 'staff'])) {
+        if (!$user || !in_array($user->user_role, ['admin', 'superadmin'])) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 

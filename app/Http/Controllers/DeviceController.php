@@ -74,7 +74,13 @@ class DeviceController extends Controller
             $deviceFilter = new DeviceFilter($filters);
             $query = $deviceFilter->apply($query);
 
-            // Pagination
+            // Pagination and ordering
+            $orderByCreated = $request->input('order_by_created');
+            if ($orderByCreated === 'earliest') {
+                $query = $query->orderBy('created_at', 'asc');
+            } elseif ($orderByCreated === 'latest') {
+                $query = $query->orderBy('created_at', 'desc');
+            }
             $perPage = $request->input('per_page', 10);
             $devices = $query->paginate($perPage);
 
