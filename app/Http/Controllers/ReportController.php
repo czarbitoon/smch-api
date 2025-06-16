@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Log;
 use App\Events\ReportSubmitted;
+use App\Notifications\DeviceReportedNotification;
+use App\Models\User;
 
 class ReportController extends Controller
 {
@@ -76,6 +78,31 @@ class ReportController extends Controller
                 'report_image' => $reportImagePath,
                 'device_image_url' => $deviceImageUrl,
             ]);
+
+            // Notify the device owner (if any) and all users who previously reported this device
+            $notifiedUserIds = [];
+            // Notify the device owner if not the current user
+            if ($device->user_id && $device->user_id != $user->id) {
+                $owner = User::find($device->user_id);
+                if ($owner) {
+                    $owner->notify(new DeviceReportedNotification($report, $device, $user));
+                    $notifiedUserIds[] = $owner->id;
+                }
+            }
+            // Notify all users who previously reported this device (except current user)
+            $previousReporters = Report::where('device_id', $device->id)
+                ->where('user_id', '!=', $user->id)
+                ->distinct('user_id')
+                ->pluck('user_id');
+            foreach ($previousReporters as $reporterId) {
+                if (!in_array($reporterId, $notifiedUserIds)) {
+                    $reporter = User::find($reporterId);
+                    if ($reporter) {
+                        $reporter->notify(new DeviceReportedNotification($report, $device, $user));
+                        $notifiedUserIds[] = $reporterId;
+                    }
+                }
+            }
 
             // Dispatch event for broadcasting (real-time notification)
             event(new ReportSubmitted($report));
