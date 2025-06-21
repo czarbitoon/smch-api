@@ -45,6 +45,7 @@ return [
         'app://smch-mobile',         // Mobile app scheme
         'http://localhost:8081',     // React Native Metro bundler
         'https://smch-api-production.up.railway.app', // New API endpoint
+        'https://smch-web.vercel.app', // Production frontend domain
         // Add your production domains here, e.g. 'https://yourdomain.com'
     ],
 
