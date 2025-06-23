@@ -4,14 +4,11 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Device;
-use Faker\Factory as Faker;
 
 class DeviceSeeder extends Seeder
 {
     public function run()
     {
-        $faker = Faker::create();
-
         $deviceConfigs = [
             // Laptops
             [
@@ -68,8 +65,8 @@ class DeviceSeeder extends Seeder
         foreach ($deviceConfigs as $config) {
             foreach ($officeIds as $officeId) {
                 for ($i = 0; $i < $config['count_per_office']; $i++) {
-                    $manufacturer = $faker->randomElement($config['manufacturers']);
-                    $status = $faker->randomElement($statuses);
+                    $manufacturer = $config['manufacturers'][$i % count($config['manufacturers'])];
+                    $status = $statuses[$i % count($statuses)];
 
                     // Assign image path based on device type (1-12)
                     $typeImages = [
@@ -90,11 +87,11 @@ class DeviceSeeder extends Seeder
                     $image = $deviceTypeId && isset($typeImages[$deviceTypeId]) ? $typeImages[$deviceTypeId] : 'default_device.jpg';
                     Device::create([
                         'name' => $manufacturer . ' Device',
-                        'description' => $faker->sentence(),
+                        'description' => 'Sample device for ' . $manufacturer,
                         'device_type_id' => $config['device_type_id'],
                         'office_id' => $officeId,
-                        'serial_number' => $faker->unique()->regexify('[A-Z0-9]{10}'),
-                        'model_number' => $faker->regexify('[A-Z]{2}[0-9]{4}'),
+                        'serial_number' => 'SN' . $officeId . $deviceTypeId . $i,
+                        'model_number' => 'MD' . $deviceTypeId . $i,
                         'manufacturer' => $manufacturer,
                         'status' => $status,
                         'image' => $image,
@@ -103,7 +100,6 @@ class DeviceSeeder extends Seeder
                 }
             }
         }
-
     }
 
     /**

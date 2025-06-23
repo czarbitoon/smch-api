@@ -38,13 +38,12 @@ class ReportSeeder extends Seeder
             $createdAt = Carbon::now()->subDays(rand(1, 30));
 
             $reportData = [
-                'title' => 'Report #' . ($i + 1) . ': ' . fake()->sentence(4),
-                'description' => fake()->paragraph(3),
+                'title' => 'Report #' . ($i + 1) . ': Sample report',
+                'description' => 'Sample description for report ' . ($i + 1),
                 'device_id' => $device->id,
                 'user_id' => $user->id,
                 'office_id' => $device->office_id,
                 'status' => $status,
-
                 'created_at' => $createdAt,
                 'updated_at' => $createdAt
             ];
@@ -58,7 +57,7 @@ class ReportSeeder extends Seeder
                 $resolvedAt = Carbon::parse($createdAt)->addHours(rand(1, 72));
 
                 $reportData = array_merge($reportData, [
-                    'resolution_notes' => fake()->paragraph(),
+                    'resolution_notes' => 'Sample resolution notes for report ' . ($i + 1),
                     'resolved_by' => $resolvedBy->id,
                     'resolved_at' => $resolvedAt,
                     'updated_at' => $resolvedAt

@@ -21,3 +21,6 @@ return new class extends Migration
         Schema::dropIfExists('job_orders');
     }
 };
+
+// This migration is now obsolete and should be removed to drop the job_orders table.
+// You can delete this file after confirming the table is dropped.
