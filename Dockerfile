@@ -22,6 +22,7 @@ RUN if [ ! -f .env ]; then cp .env.example .env; fi
 
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev \
     && php artisan key:generate \
+    && php artisan config:clear \
     && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Ensure Laravel storage and cache directories exist and are writable
