@@ -31,17 +31,44 @@ RUN chown -R www-data:www-data storage bootstrap/cache
 # Final stage
 FROM php:8.2-fpm-alpine
 
+# Environment variables
+ENV APP_NAME="Laravel" \
+    APP_ENV="production" \
+    APP_KEY="base64:U/7gx/vxlkQi05VonIKIGUeapXh3UU+cIEJp8qa8nHE=" \
+    APP_DEBUG="true" \
+    APP_TIMEZONE="UTC" \
+    APP_URL="https://smch-api-production.up.railway.app" \
+    DB_CONNECTION="mysql" \
+    DB_HOST="interchange.proxy.rlwy.net" \
+    DB_PORT="51691" \
+    DB_DATABASE="railway" \
+    DB_USERNAME="root" \
+    DB_PASSWORD="SMCUxfcsmhpwhJFcarxCUQLeHsdGiVMH"
+
+# Install additional dependencies for database connectivity
+RUN apk add --no-cache mysql-client
+
 # Copy extensions and configuration from builder stage
 COPY --from=builder /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
 COPY --from=builder /usr/local/etc/php/conf.d/ /usr/local/etc/php/conf.d/
 
 WORKDIR /var/www/html
 COPY --from=builder /var/www/html /var/www/html
-RUN chown -R www-data:www-data storage bootstrap/cache
 
+# Set permissions
 RUN mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache
 
+# Create startup script
+RUN echo '#!/bin/sh' > /docker-entrypoint.sh \
+    && echo 'set -e' >> /docker-entrypoint.sh \
+    && echo 'php artisan config:cache' >> /docker-entrypoint.sh \
+    && echo 'php artisan route:cache' >> /docker-entrypoint.sh \
+    && echo 'php artisan cache:clear' >> /docker-entrypoint.sh \
+    && echo 'php artisan migrate --force' >> /docker-entrypoint.sh \
+    && echo 'exec php artisan serve --host=0.0.0.0 --port=8000' >> /docker-entrypoint.sh \
+    && chmod +x /docker-entrypoint.sh
+
 EXPOSE 8000
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+CMD ["/docker-entrypoint.sh"]
