@@ -9,35 +9,55 @@ class UsersTableSeeder extends Seeder
 {
     public function run()
     {
-        DB::table('users')->insert([
+        // Use updateOrInsert to prevent duplicate entry errors
+        $users = [
             [
-                'name' => 'Super Admin',
                 'email' => 'superadmin@example.com',
-                'password' => Hash::make('password'),
-                'user_role' => 'superadmin',
-                'office_id' => null,
+                'data' => [
+                    'name' => 'Super Admin',
+                    'email' => 'superadmin@example.com',
+                    'password' => Hash::make('password'),
+                    'user_role' => 'superadmin',
+                    'office_id' => null,
+                ]
             ],
             [
-                'name' => 'Admin',
                 'email' => 'admin@example.com',
-                'password' => Hash::make('password'),
-                'user_role' => 'admin',
-                'office_id' => null,
+                'data' => [
+                    'name' => 'Admin',
+                    'email' => 'admin@example.com',
+                    'password' => Hash::make('password'),
+                    'user_role' => 'admin',
+                    'office_id' => null,
+                ]
             ],
             [
-                'name' => 'Staff',
                 'email' => 'staff@example.com',
-                'password' => Hash::make('password'),
-                'user_role' => 'staff',
-                'office_id' => 2, // Computer Lab 1
+                'data' => [
+                    'name' => 'Staff',
+                    'email' => 'staff@example.com',
+                    'password' => Hash::make('password'),
+                    'user_role' => 'staff',
+                    'office_id' => 2, // Computer Lab 1
+                ]
             ],
             [
-                'name' => 'User',
                 'email' => 'user@example.com',
-                'password' => Hash::make('password'),
-                'user_role' => 'user',
-                'office_id' => 1, // Main Office
+                'data' => [
+                    'name' => 'User',
+                    'email' => 'user@example.com',
+                    'password' => Hash::make('password'),
+                    'user_role' => 'user',
+                    'office_id' => 1, // Main Office
+                ]
             ],
-        ]);
+        ];
+
+        foreach ($users as $user) {
+            DB::table('users')->updateOrInsert(
+                ['email' => $user['email']],
+                $user['data']
+            );
+        }
     }
 }

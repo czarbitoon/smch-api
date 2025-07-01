@@ -60,13 +60,63 @@ RUN mkdir -p storage/framework/cache storage/framework/sessions storage/framewor
     && chmod -R 775 storage bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache
 
-# Create startup script
+# Create more robust entrypoint script
 RUN echo '#!/bin/sh' > /docker-entrypoint.sh \
     && echo 'set -e' >> /docker-entrypoint.sh \
+    && echo '' >> /docker-entrypoint.sh \
+    && echo '# Function to check database connection' >> /docker-entrypoint.sh \
+    && echo 'check_database() {' >> /docker-entrypoint.sh \
+    && echo '  echo "Testing database connection..."' >> /docker-entrypoint.sh \
+    && echo '  if php -r "try { \$pdo = new PDO(\"mysql:host=\${DB_HOST};port=\${DB_PORT};dbname=\${DB_DATABASE}\", \"\${DB_USERNAME}\", \"\${DB_PASSWORD}\"); echo \"Connected successfully\"; } catch(PDOException \$e) { echo \"Connection failed: \" . \$e->getMessage(); exit(1); }"; then' >> /docker-entrypoint.sh \
+    && echo '    echo "Database connection successful"' >> /docker-entrypoint.sh \
+    && echo '    return 0' >> /docker-entrypoint.sh \
+    && echo '  else' >> /docker-entrypoint.sh \
+    && echo '    echo "Database connection failed, retrying in 5 seconds..."' >> /docker-entrypoint.sh \
+    && echo '    return 1' >> /docker-entrypoint.sh \
+    && echo '  fi' >> /docker-entrypoint.sh \
+    && echo '}' >> /docker-entrypoint.sh \
+    && echo '' >> /docker-entrypoint.sh \
+    && echo '# Wait for database to be ready' >> /docker-entrypoint.sh \
+    && echo 'max_tries=10' >> /docker-entrypoint.sh \
+    && echo 'try=0' >> /docker-entrypoint.sh \
+    && echo 'while [ $try -lt $max_tries ]; do' >> /docker-entrypoint.sh \
+    && echo '  if check_database; then' >> /docker-entrypoint.sh \
+    && echo '    break' >> /docker-entrypoint.sh \
+    && echo '  fi' >> /docker-entrypoint.sh \
+    && echo '  try=$((try+1))' >> /docker-entrypoint.sh \
+    && echo '  sleep 5' >> /docker-entrypoint.sh \
+    && echo 'done' >> /docker-entrypoint.sh \
+    && echo '' >> /docker-entrypoint.sh \
+    && echo 'if [ $try -eq $max_tries ]; then' >> /docker-entrypoint.sh \
+    && echo '  echo "Could not connect to database after $max_tries attempts. Exiting."' >> /docker-entrypoint.sh \
+    && echo '  exit 1' >> /docker-entrypoint.sh \
+    && echo 'fi' >> /docker-entrypoint.sh \
+    && echo '' >> /docker-entrypoint.sh \
+    && echo '# Clear and cache configuration' >> /docker-entrypoint.sh \
+    && echo 'echo "Clearing caches and optimizing..."' >> /docker-entrypoint.sh \
+    && echo 'php artisan config:clear' >> /docker-entrypoint.sh \
+    && echo 'php artisan cache:clear' >> /docker-entrypoint.sh \
+    && echo 'php artisan route:clear' >> /docker-entrypoint.sh \
+    && echo 'php artisan view:clear' >> /docker-entrypoint.sh \
     && echo 'php artisan config:cache' >> /docker-entrypoint.sh \
     && echo 'php artisan route:cache' >> /docker-entrypoint.sh \
-    && echo 'php artisan cache:clear' >> /docker-entrypoint.sh \
+    && echo '' >> /docker-entrypoint.sh \
+    && echo '# Run migrations' >> /docker-entrypoint.sh \
+    && echo 'echo "Running migrations..."' >> /docker-entrypoint.sh \
     && echo 'php artisan migrate --force' >> /docker-entrypoint.sh \
+    && echo '' >> /docker-entrypoint.sh \
+    && echo '# Only seed if the database is empty' >> /docker-entrypoint.sh \
+    && echo 'echo "Checking if database needs seeding..."' >> /docker-entrypoint.sh \
+    && echo 'USER_COUNT=$(php artisan tinker --execute="echo DB::table(\"users\")->count();" | grep -oE "[0-9]+" || echo 0)' >> /docker-entrypoint.sh \
+    && echo 'if [ "$USER_COUNT" -eq "0" ]; then' >> /docker-entrypoint.sh \
+    && echo '  echo "No users found. Running seeds..."' >> /docker-entrypoint.sh \
+    && echo '  php artisan db:seed --force' >> /docker-entrypoint.sh \
+    && echo 'else' >> /docker-entrypoint.sh \
+    && echo '  echo "Users already exist. Skipping seed."' >> /docker-entrypoint.sh \
+    && echo 'fi' >> /docker-entrypoint.sh \
+    && echo '' >> /docker-entrypoint.sh \
+    && echo '# Start server' >> /docker-entrypoint.sh \
+    && echo 'echo "Starting server..."' >> /docker-entrypoint.sh \
     && echo 'exec php artisan serve --host=0.0.0.0 --port=8000' >> /docker-entrypoint.sh \
     && chmod +x /docker-entrypoint.sh
 

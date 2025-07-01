@@ -23,11 +23,8 @@ class OfficeSeeder extends Seeder
         ];
 
         foreach ($offices as $office) {
-            Office::create([
-                'name' => $office,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            // Use firstOrCreate to prevent duplicates
+            Office::firstOrCreate(['name' => $office]);
         }
     }
 }

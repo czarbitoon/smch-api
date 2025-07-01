@@ -85,18 +85,24 @@ class DeviceSeeder extends Seeder
                     ];
                     $deviceTypeId = $config['device_type_id'];
                     $image = $deviceTypeId && isset($typeImages[$deviceTypeId]) ? $typeImages[$deviceTypeId] : 'default_device.jpg';
-                    Device::create([
-                        'name' => $manufacturer . ' Device',
-                        'description' => 'Sample device for ' . $manufacturer,
-                        'device_type_id' => $config['device_type_id'],
-                        'office_id' => $officeId,
-                        'serial_number' => 'SN' . $officeId . $deviceTypeId . $i,
-                        'model_number' => 'MD' . $deviceTypeId . $i,
-                        'manufacturer' => $manufacturer,
-                        'status' => $status,
-                        'image' => $image,
-                        'device_category_id' => self::resolveDeviceCategoryId($config['device_type_id'])
-                    ]);
+                    $serialNumber = 'SN' . $officeId . $config['device_type_id'] . $i;
+                    $modelNumber = 'MD' . $config['device_type_id'] . $i;
+
+                    // Use firstOrCreate to prevent duplicates based on serial number
+                    Device::firstOrCreate(
+                        ['serial_number' => $serialNumber],
+                        [
+                            'name' => $manufacturer . ' Device',
+                            'description' => 'Sample device for ' . $manufacturer,
+                            'device_type_id' => $config['device_type_id'],
+                            'office_id' => $officeId,
+                            'model_number' => $modelNumber,
+                            'manufacturer' => $manufacturer,
+                            'status' => $status,
+                            'image' => $image,
+                            'device_category_id' => self::resolveDeviceCategoryId($config['device_type_id'])
+                        ]
+                    );
                 }
             }
         }
