@@ -1,5 +1,5 @@
 [start]
-cmd = "php artisan serve --host=0.0.0.0 --port=$PORT"
+cmd = "php start-server.php"
 
 [variables]
 PHP_VERSION = "8.2"
