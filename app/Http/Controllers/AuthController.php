@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Password;
 use App\Models\User;
 use App\Models\Device;
 use App\Models\Report;
@@ -17,15 +19,39 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         try {
+            // Log the incoming request
+            Log::info('Login attempt', [
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'has_email' => $request->has('email'),
+                'has_password' => $request->has('password')
+            ]);
+
+            // Validate input
+            $request->validate([
+                'email' => 'required|email',
+                'password' => 'required'
+            ]);
+
             $credentials = $request->only(['email', 'password']);
+
+            // Check if database connection is working
+            try {
+                DB::connection()->getPdo();
+                Log::info('Database connection successful');
+            } catch (\Exception $e) {
+                Log::error('Database connection failed', ['error' => $e->getMessage()]);
+                return response()->json(['error' => 'Database connection failed'], 500);
+            }
 
             if (!Auth::attempt($credentials)) {
                 Log::warning('Failed login attempt for email: ' . $credentials['email']);
-                return response()->json(['error' => 'Unauthorized'], 401);
+                return response()->json(['error' => 'Invalid credentials'], 401);
             }
 
             $user = Auth::user();
             Log::info('User logged in successfully', ['user_id' => $user->id, 'email' => $user->email]);
+
             $token = $user->createToken('authToken')->plainTextToken;
 
             return response()->json([
@@ -36,7 +62,14 @@ class AuthController extends Controller
                 'office_id' => $user->office_id
             ]);
         } catch (ValidationException $e) {
+            Log::error('Validation error in login', ['error' => $e->getMessage()]);
             return response()->json(['error' => $e->getMessage()], 400);
+        } catch (\Exception $e) {
+            Log::error('Unexpected error in login', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json(['error' => 'Internal server error'], 500);
         }
     }
 

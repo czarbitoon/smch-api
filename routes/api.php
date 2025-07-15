@@ -1,5 +1,6 @@
 <?php
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\OfficeController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DeviceController;
@@ -11,6 +12,24 @@ use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ImageController;
+
+// Health check route
+Route::get('/health', function () {
+    try {
+        $dbStatus = 'connected';
+        DB::connection()->getPdo();
+    } catch (\Exception $e) {
+        $dbStatus = 'failed: ' . $e->getMessage();
+    }
+
+    return response()->json([
+        'status' => 'ok',
+        'database' => $dbStatus,
+        'timestamp' => now(),
+        'env' => config('app.env'),
+        'debug' => config('app.debug')
+    ]);
+});
 
 // CSRF Token route
 Route::get('/sanctum/csrf-cookie', function () {

@@ -1,0 +1,27 @@
+[start]
+cmd = "bash start-railway.sh"
+
+[build]
+cmds = [
+    "composer install --no-dev --optimize-autoloader",
+    "npm ci --only=production",
+    "npm run build"
+]
+
+[variables]
+PHP_VERSION = "8.2"
+NODE_VERSION = "18"
+
+[phases.setup]
+cmds = [
+    "mkdir -p storage/framework/{cache,sessions,views}",
+    "mkdir -p storage/logs",
+    "chmod -R 775 storage bootstrap/cache"
+]
+
+[phases.build]
+cmds = [
+    "php artisan config:clear",
+    "php artisan route:clear",
+    "php artisan view:clear"
+]
