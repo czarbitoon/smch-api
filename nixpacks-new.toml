@@ -1,13 +1,14 @@
 [start]
-cmd = "bash start-simple.sh"
+cmd = "bash start-railway.sh"
 
 [variables]
 PHP_VERSION = "8.2"
 
 [phases.setup]
 cmds = [
-    "chmod +x start-simple.sh",
-    "chmod +x debug-railway.sh"
+    "mkdir -p storage/framework/{cache,sessions,views}",
+    "mkdir -p storage/logs",
+    "chmod -R 775 storage bootstrap/cache"
 ]
 
 [phases.build]
