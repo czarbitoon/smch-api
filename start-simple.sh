@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 
 echo "=== SIMPLE RAILWAY STARTUP ==="
 
 # Source the debug script first
-bash debug-railway.sh
+sh debug-railway.sh
 
 # Set environment variables for Railway MySQL
 export DB_HOST=${MYSQLHOST:-localhost}

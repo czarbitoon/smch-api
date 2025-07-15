@@ -1,16 +1,11 @@
 [start]
-cmd = "bash start-simple.sh"
+cmd = "php artisan serve --host=0.0.0.0 --port=$PORT"
 
 [variables]
 PHP_VERSION = "8.2"
 
-[phases.setup]
-cmds = [
-    "chmod +x start-simple.sh",
-    "chmod +x debug-railway.sh"
-]
-
 [phases.build]
 cmds = [
-    "composer install --no-dev --optimize-autoloader --no-interaction"
+    "composer install --no-dev --optimize-autoloader --no-interaction",
+    "php setup-laravel.php"
 ]

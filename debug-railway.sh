@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 echo "=== RAILWAY DEBUGGING SCRIPT ==="
 echo "Current directory: $(pwd)"
