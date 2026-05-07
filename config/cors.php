@@ -33,22 +33,14 @@ return [
     ],
 
     // Allowed Origins - Be more specific for production
-    'allowed_origins' => [
-        'http://localhost:3000',     // React dev server
-        'http://localhost:5173',     // Vite dev server
-        'http://localhost:8000',     // Laravel dev server
-        'http://localhost',          // General localhost
-        'http://127.0.0.1:8000',     // Laravel alternate
-        'http://127.0.0.1:3000',     // React alternate
-        'http://127.0.0.1:5173',     // Vite alternate
-        'capacitor://localhost',     // Capacitor on mobile
-        'app://smch-mobile',         // Mobile app scheme
-        'http://localhost:8081',     // React Native Metro bundler
-        'https://smch-api-production.up.railway.app', // New API endpoint
-        'https://smch-web.vercel.app', // Production frontend domain
-        'https://smch-web-production.up.railway.app/'
-        // Add your production domains here, e.g. 'https://yourdomain.com'
+   'allowed_origins' => [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://smch-web.vercel.app',
+    'https://smch-cqa02kf1r-czarbitoons-projects.vercel.app', // Add this exact one
+    'https://contend-fender-evasion.ngrok-free.dev', // Add the backend itself
     ],
+
 
     // Allowed Headers
     'allowed_headers' => [
