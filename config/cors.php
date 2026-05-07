@@ -33,14 +33,12 @@ return [
     ],
 
     // Allowed Origins - Be more specific for production
-   'allowed_origins' => [
-    'http://localhost:3000',
-    'http://localhost:5173',
+'allowed_origins' => [
     'https://smch-web.vercel.app',
-    'https://smch-cqa02kf1r-czarbitoons-projects.vercel.app', // Add this exact one
-    'https://contend-fender-evasion.ngrok-free.dev', // Add the backend itself
-    ],
-
+    'https://smch-k3rltuw7r-czarbitoons-projects.vercel.app',
+    'http://localhost:5173', 
+],
+'supports_credentials' => true,
 
     // Allowed Headers
     'allowed_headers' => [
