@@ -54,6 +54,7 @@ Route::get('/profile', [AuthController::class, 'profile'])->middleware('auth:san
 // Profile routes
 Route::post('/profile/update', [ProfileController::class, 'update'])->middleware('auth:sanctum');
 Route::post('/profile/upload-picture', [ProfileController::class, 'uploadPicture'])->middleware('auth:sanctum');
+Route::post('/profile/update-office', [ProfileController::class, 'updateOffice'])->middleware('auth:sanctum');
 
 
 // Admin routes

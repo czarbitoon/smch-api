@@ -88,7 +88,7 @@ class DeviceController extends Controller
                 'success' => true,
                 'data' => $devices->through(function ($device) {
                     return array_merge($device->toArray(), [
-                        'image_url' => $device->image_url
+                        'image_url' => $device->image ? asset('storage/' . $device->image) : null
                     ]);
                 })
             ]);

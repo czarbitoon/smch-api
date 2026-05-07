@@ -74,7 +74,7 @@ class ReportController extends Controller
                 'device_id' => $device->id,
                 'user_id' => $user->id,
                 'office_id' => $user->office_id,
-                'status' => strtolower($status),
+                'status' => $validatedData['status'] ?? 'pending',
                 'report_image' => $reportImagePath,
                 'device_image_url' => $deviceImageUrl,
             ]);

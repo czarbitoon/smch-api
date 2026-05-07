@@ -56,6 +56,25 @@ class ProfileController extends Controller
         ]);
     }
 
+    public function updateOffice(Request $request)
+    {
+        $request->validate([
+            'office_id' => 'required|exists:offices,id',
+        ]);
+        
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['message' => 'User not authenticated'], 401);
+        }
+        
+        $user->update(['office_id' => $request->office_id]);
+        
+        return response()->json([
+            'message' => 'Office updated successfully',
+            'office_id' => $user->office_id,
+        ]);
+    }
+
     public function update(Request $request)
     {
         $user = Auth::user();
