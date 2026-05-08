@@ -1,18 +1,6 @@
 <?php
 
 return [
-    /*
-    |--------------------------------------------------------------------------
-    | CORS Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Here you may configure your settings for cross-origin resource sharing
-    | or "CORS". This determines what cross-origin operations may execute
-    | in web browsers.
-    |
-    */
-
-    // API Routes that should handle CORS
     'paths' => [
         'api/*',
         'sanctum/csrf-cookie',
@@ -21,49 +9,33 @@ return [
         'register',
         'storage/*',
     ],
+    
 
-    // Allowed HTTP Methods
-    'allowed_methods' => [
-        'GET',
-        'POST',
-        'PUT',
-        'PATCH',
-        'DELETE',
-        'OPTIONS',
+    'allowed_methods' => ['*'],
+
+    'allowed_origins' => explode(',', env('ALLOWED_ORIGINS', 'http://localhost:5173')),
+
+    'allowed_origins_patterns' => [
+        '#^https://.*\.vercel\.app$#',
     ],
 
-    // Allowed Origins - Be more specific for production
-        'allowed_origins' => [
-            'https://smch-web.vercel.app', // Your main link
-            'https://smch-k3rltuw7r-czarbitoons-projects.vercel.app', // Your preview link
-            'http://localhost:5173', // Your local testing
-        ],
-'supports_credentials' => true,
-
-    // Allowed Headers
     'allowed_headers' => [
-    'Authorization',
-    'X-Requested-With',
-    'Content-Type',
-    'Accept',
-    'Origin',
-    'X-XSRF-TOKEN',
-    'X-CSRF-TOKEN',
-    'X-Socket-ID',
-    'Access-Control-Allow-Origin',
-    'ngrok-skip-browser-warning', // Add this line here
-],
+        'Content-Type',
+        'X-Requested-With',
+        'Authorization',
+        'Accept',
+        'Origin',
+        'X-XSRF-TOKEN',
+        'X-CSRF-TOKEN',
+        'ngrok-skip-browser-warning',
+    ],
 
-    // Headers exposed to the client
     'exposed_headers' => [
         'Authorization',
         'X-XSRF-TOKEN',
-        'Content-Disposition',       // For file downloads
     ],
 
-    // Cache duration for preflight requests (in seconds)
     'max_age' => 7200,
 
-    // Support credentials like cookies, authorization headers
     'supports_credentials' => true,
 ];
