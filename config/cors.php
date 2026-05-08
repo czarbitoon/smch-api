@@ -1,6 +1,18 @@
 <?php
 
 return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cross-Origin Resource Sharing (CORS) Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Here you may configure your settings for cross-origin resource sharing
+    | or "CORS". This determines what cross-origin operations may execute
+    | in web browsers.
+    |
+    */
+
     'paths' => [
         'api/*',
         'sanctum/csrf-cookie',
@@ -9,13 +21,14 @@ return [
         'register',
         'storage/*',
     ],
-    
 
+    // Using '*' here is fine for methods as long as origins are restricted
     'allowed_methods' => ['*'],
 
     'allowed_origins' => explode(',', env('ALLOWED_ORIGINS', 'http://localhost:5173')),
 
     'allowed_origins_patterns' => [
+        // Robust regex for Vercel preview and production subdomains
         '#^https://.*\.vercel\.app$#',
     ],
 
@@ -27,6 +40,7 @@ return [
         'Origin',
         'X-XSRF-TOKEN',
         'X-CSRF-TOKEN',
+        // Crucial for Ngrok bypass
         'ngrok-skip-browser-warning',
     ],
 
@@ -35,7 +49,9 @@ return [
         'X-XSRF-TOKEN',
     ],
 
-    'max_age' => 7200,
+    // Set to 0 during debugging to force browser to re-check CORS every time
+    // Change back to 7200 once the demo is stable
+    'max_age' => 0,
 
     'supports_credentials' => true,
 ];
