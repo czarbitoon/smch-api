@@ -5,6 +5,7 @@ use App\Http\Controllers\OfficeController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\TicketController;
 use App\Http\Controllers\TokenController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DeviceCategoryController;
@@ -97,6 +98,30 @@ Route::get('/device-types/{id}', [\App\Http\Controllers\DeviceTypeController::cl
 Route::post('/device-types', [\App\Http\Controllers\DeviceTypeController::class, 'store']);
 Route::put('/device-types/{id}', [\App\Http\Controllers\DeviceTypeController::class, 'update']);
 Route::delete('/device-types/{id}', [\App\Http\Controllers\DeviceTypeController::class, 'destroy']);
+
+// Ticket routes (protected by auth:sanctum)
+Route::middleware('auth:sanctum')->group(function () {
+    // Create a new ticket
+    Route::post('/tickets', [TicketController::class, 'createTicket']);
+    
+    // Get all tickets (with role-based filtering)
+    Route::get('/tickets', [TicketController::class, 'getTickets']);
+    
+    // Get a single ticket
+    Route::get('/tickets/{id}', [TicketController::class, 'getTicket']);
+    
+    // Update ticket (subject, description, priority)
+    Route::put('/tickets/{id}', [TicketController::class, 'updateTicket']);
+    
+    // Update ticket status (open, in-progress, resolved, closed)
+    Route::post('/tickets/{id}/status', [TicketController::class, 'updateStatus']);
+    
+    // Assign ticket to a technician
+    Route::post('/tickets/{id}/assign', [TicketController::class, 'assignTicket']);
+    
+    // Delete a ticket
+    Route::delete('/tickets/{id}', [TicketController::class, 'deleteTicket']);
+});
 
 // Notification routes
 Route::middleware('auth:sanctum')->group(function () {
