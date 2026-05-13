@@ -28,8 +28,12 @@ return [
     'allowed_origins' => explode(',', env('ALLOWED_ORIGINS', 'http://localhost:5173')),
 
     'allowed_origins_patterns' => [
-        // Robust regex for Vercel preview and production subdomains
+        // Allow any Vercel domain (production + previews)
         '#^https://.*\.vercel\.app$#',
+        // Allow ngrok domains for local development
+        '#^https://.*\.ngrok(?:-free)?\.dev$#',
+        // Allow localhost for development
+        '#^https?://localhost.*$#',
     ],
 
     'allowed_headers' => [
