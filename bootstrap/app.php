@@ -12,6 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Apply CORS middleware to all routes
+        $middleware->prepend(\App\Http\Middleware\CorsMiddleware::class);
         // Remove the ForceCors line and use the built-in Sanctum stateful helper
         $middleware->statefulApi();
     })
