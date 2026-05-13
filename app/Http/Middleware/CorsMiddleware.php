@@ -12,12 +12,11 @@ class CorsMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        $origin = $request->headers->get('origin');
+        $origin = $request->header('origin') ?: $request->header('Origin');
 
         // Get allowed origins from config
-        $allowedOrigins = config('cors.allowed_origins', []);
-        $allowedPatterns = config('cors.allowed_origins_patterns', []);
-
+        $allowedOrigins = array_filter(array_map('trim', explode(',', env('ALLOWED_ORIGINS', 'http://localhost:5173'))));
+        
         $isAllowed = false;
 
         // Check exact matches
@@ -25,34 +24,44 @@ class CorsMiddleware
             $isAllowed = true;
         }
 
-        // Check regex patterns
+        // Check patterns
         if (!$isAllowed) {
-            foreach ($allowedPatterns as $pattern) {
-                if (preg_match($pattern, $origin)) {
+            $patterns = [
+                '#^https://.*\.vercel\.app$#i',
+                '#^https://.*\.ngrok(?:-free)?\.dev$#i',
+                '#^https?://localhost(:\d+)?$#i',
+            ];
+            
+            foreach ($patterns as $pattern) {
+                if ($origin && preg_match($pattern, $origin)) {
                     $isAllowed = true;
                     break;
                 }
             }
         }
 
-        // Allow localhost for development
-        if (!$isAllowed && preg_match('#^https?://localhost(:\d+)?$#', $origin)) {
-            $isAllowed = true;
-        }
-
-        // If preflight request
+        // Handle preflight requests
         if ($request->isMethod('OPTIONS')) {
-            $response = response('', 200);
-        } else {
-            $response = $next($request);
+            if ($isAllowed) {
+                return response('', 200)
+                    ->header('Access-Control-Allow-Origin', $origin)
+                    ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
+                    ->header('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With, Authorization, Accept, Origin, X-XSRF-TOKEN, X-CSRF-TOKEN, ngrok-skip-browser-warning')
+                    ->header('Access-Control-Expose-Headers', 'Authorization, X-XSRF-TOKEN, Set-Cookie')
+                    ->header('Access-Control-Allow-Credentials', 'true')
+                    ->header('Access-Control-Max-Age', '0');
+            }
+            return response('Forbidden', 403);
         }
 
-        // Add CORS headers if allowed
-        if ($isAllowed) {
+        // Handle actual requests
+        $response = $next($request);
+
+        if ($isAllowed && $origin) {
             $response->header('Access-Control-Allow-Origin', $origin);
             $response->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
             $response->header('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With, Authorization, Accept, Origin, X-XSRF-TOKEN, X-CSRF-TOKEN, ngrok-skip-browser-warning');
-            $response->header('Access-Control-Expose-Headers', 'Authorization, X-XSRF-TOKEN');
+            $response->header('Access-Control-Expose-Headers', 'Authorization, X-XSRF-TOKEN, Set-Cookie');
             $response->header('Access-Control-Allow-Credentials', 'true');
             $response->header('Access-Control-Max-Age', '0');
         }
@@ -60,3 +69,4 @@ class CorsMiddleware
         return $response;
     }
 }
+
