@@ -15,11 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // Apply CORS middleware to all routes
         $middleware->prepend(\App\Http\Middleware\CorsMiddleware::class);
         
-        // Sanctum stateful API - handles session-based auth for web clients
-        $middleware->statefulApi();
-        
-        // Use custom CSRF middleware that exempts API routes
-        // API routes use Bearer token auth, not CSRF
+        // Remove statefulApi() - it conflicts with Bearer token auth
+        // API routes use Bearer token authentication, not CSRF/session-based auth
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
