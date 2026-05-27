@@ -61,7 +61,7 @@ class TicketController extends Controller
                 'description' => $validatedData['description'],
                 'device_id' => $device->id,
                 'user_id' => $user->id,
-                'office_id' => $user->office_id,
+                'office_id' => $user->office_id ?? $device->office_id,
                 'priority' => $validatedData['priority'] ?? Ticket::PRIORITY_MEDIUM,
                 'status' => Ticket::STATUS_OPEN,
                 'image' => $imagePath,
