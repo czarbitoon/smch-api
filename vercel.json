@@ -1,0 +1,17 @@
+{
+  "buildCommand": "composer install && npm install && npm run build",
+  "devCommand": "php artisan serve",
+  "installCommand": "composer install && npm install",
+  "framework": "laravel",
+  "functions": {
+    "api/index.php": {
+      "runtime": "php-8.3"
+    }
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.php"
+    }
+  ]
+}
