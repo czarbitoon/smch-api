@@ -22,10 +22,15 @@ return [
         'storage/*',
     ],
 
-    // Using '*' here is fine for methods as long as origins are restricted
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => explode(',', env('ALLOWED_ORIGINS', 'http://localhost:5173')),
+    'allowed_origins' => [
+        'http://localhost:8081',
+        'http://localhost:5173',
+        'https://contend-fender-evasion.ngrok-free.dev',
+        'http://192.168.16.1:8000',
+        'https://smch-web.vercel.app'
+    ],
 
     'allowed_origins_patterns' => [
         // Allow any Vercel domain (production + previews)
@@ -36,17 +41,7 @@ return [
         '#^https?://localhost.*$#',
     ],
 
-    'allowed_headers' => [
-        'Content-Type',
-        'X-Requested-With',
-        'Authorization',
-        'Accept',
-        'Origin',
-        'X-XSRF-TOKEN',
-        'X-CSRF-TOKEN',
-        // Crucial for Ngrok bypass
-        'ngrok-skip-browser-warning',
-    ],
+    'allowed_headers' => ['*'],
 
     'exposed_headers' => [
         'Authorization',
