@@ -17,6 +17,14 @@ class TicketController extends Controller
      */
     public function createTicket(Request $request)
     {
+        // Add fallbacks for mobile app payloads
+        if ($request->has('title') && !$request->has('subject')) {
+            $request->merge(['subject' => $request->input('title')]);
+        }
+        if ($request->has('report_image') && !$request->has('image')) {
+            $request->merge(['image' => $request->input('report_image')]);
+        }
+
         try {
             // Validate the request
             $validatedData = $request->validate([
@@ -24,7 +32,7 @@ class TicketController extends Controller
                 'description' => 'required|string',
                 'device_id' => 'required|exists:devices,id',
                 'priority' => 'sometimes|in:low,medium,high',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'image' => $request->hasFile('image') ? 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048' : 'nullable|string',
             ], [
                 'subject.required' => 'The ticket subject is required',
                 'subject.max' => 'The subject must not exceed 255 characters',
@@ -53,6 +61,8 @@ class TicketController extends Controller
                 $filename = \Illuminate\Support\Str::uuid() . '.' . $image->getClientOriginalExtension();
                 $path = $image->storeAs('ticket_images', $filename, 'public');
                 $imagePath = $path;
+            } elseif ($request->has('image') && is_string($request->input('image'))) {
+                $imagePath = $request->input('image');
             }
 
             // Create ticket

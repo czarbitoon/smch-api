@@ -108,6 +108,7 @@ class ReportController extends Controller
             event(new ReportSubmitted($report));
 
             // Synchronize device status with report status
+            $status = $validatedData['status'] ?? 'pending';
             if (in_array(strtolower($status), ['pending', 'in_progress'])) {
                 $device->status = 'maintenance';
                 $device->save();
