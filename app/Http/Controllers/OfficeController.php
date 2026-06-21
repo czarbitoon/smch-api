@@ -24,7 +24,7 @@ class OfficeController extends Controller
             }
 
             $query = Office::query();
-            $offices = $query->get();
+            $offices = $query->withCount('devices')->get();
             $formattedOffices = [];
 
             foreach ($offices as $office) {

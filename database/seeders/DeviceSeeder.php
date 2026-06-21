@@ -70,21 +70,21 @@ class DeviceSeeder extends Seeder
 
                     // Assign image path based on device type (1-12)
                     $typeImages = [
-                        1 => 'laptop.jpg',
-                        2 => 'desktop.jpg',
-                        3 => 'tablet.jpg',
-                        4 => 'projector.jpg',
-                        5 => 'speaker.jpg',
-                        6 => 'microphone.jpg',
-                        7 => 'router.jpg',
-                        8 => 'switch.jpg',
-                        9 => 'access point.jpg',
-                        10 => 'printer.png',
-                        11 => 'scanner.jpg',
-                        12 => 'copier.png',
+                        1 => 'devices/laptop.jpg',
+                        2 => 'devices/desktop.jpg',
+                        3 => 'devices/tablet.jpg',
+                        4 => 'devices/projector.jpg',
+                        5 => 'devices/speaker.jpg',
+                        6 => 'devices/microphone.jpg',
+                        7 => 'devices/router.jpg',
+                        8 => 'devices/switch.jpg',
+                        9 => 'devices/access_point.jpg',
+                        10 => 'devices/printer.png',
+                        11 => 'devices/scanner.jpg',
+                        12 => 'devices/copier.png',
                     ];
                     $deviceTypeId = $config['device_type_id'];
-                    $image = $deviceTypeId && isset($typeImages[$deviceTypeId]) ? $typeImages[$deviceTypeId] : 'default_device.jpg';
+                    $image = $deviceTypeId && isset($typeImages[$deviceTypeId]) ? $typeImages[$deviceTypeId] : 'devices/default_device.jpg';
                     $serialNumber = 'SN' . $officeId . $config['device_type_id'] . $i;
                     $modelNumber = 'MD' . $config['device_type_id'] . $i;
 
